@@ -4,33 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Imperial College London trivia where the rarest answer wins. Daily, unlimited and party modes.">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
 <title>Imperillion</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: a pixel-art South Kensington skyline (Queen's Tower on Queen's Lawn) as the title screen; the game sits below on a dark campus-at-dusk ground in neon-edged pixel panels.
-   The UI is deliberately one dark look; only the sky scene changes between day (light theme) and night (dark theme). */
+/* Layout: one full-screen stage. A pixel-art South Kensington (Queen's Tower on Queen's Lawn) at the bottom, open sky above.
+   Each answer launches a weather balloon; rarer answers climb higher. The UI floats over the sky in dark pixel panels.
+   The UI is deliberately one dark look; only the sky changes between day (light theme) and night (dark theme). */
 :root {
-  /* scene: day */
   --is-night: 0;
-  --sky-top: #6FAEE0; --sky-bot: #E2F0F7; --sun: #FFE38A; --sun-halo: #FFF2C2;
-  --cloud: #FFFFFF; --cloud-shade: #C9DCEB;
+  --sky-top: #5E9FDB; --sky-bot: #E2F0F7; --space: #16224A; --soil: #0D1322; --ruler: rgba(234, 240, 248, 0.6);
+  --sun: #FFE38A; --sun-halo: #FFF2C2; --cloud: #FFFFFF; --cloud-shade: #C9DCEB;
   --stone: #F1EADB; --stone-shade: #CBBDA2; --stone-light: #FFFDF5;
   --copper: #5DB89B; --copper-dark: #3A8C74; --copper-light: #93DCC2; --gold: #E8B83A;
   --bldg: #BCCAD8; --bldg-dark: #93A4B8; --concrete: #A9B3BF; --window: #6F84A0; --window-lit: #FFD66E;
   --grass: #6FBC5E; --grass-2: #5FAD4F; --hedge: #3B8A45; --path: #E6DBC1; --tree: #3F9150; --tree-dark: #2C7140; --trunk: #7A5A3C;
-  --skin: #F0C8A0; --brick: #B5694F; --brick-dark: #8E4F3B; --bird: #34445E;
+  --skin: #F0C8A0; --brick: #B5694F; --brick-dark: #8E4F3B; --bird: #34445E; --outline: #141B2F;
   --title: #FFFDF5; --title-edge: #1C3557;
-  /* ui: always dark */
-  --paper: #0D1322; --grid: #131B2E; --surface: #131B2F; --surface-2: #19233B;
-  --ink: #EAF0F8; --muted: #8F9BB4; --line: #2A3857; --shadow: #05080F;
+  /* UI */
+  --paper: #0D1322; --panel: rgba(13, 19, 34, 0.86); --panel-solid: #131B2F; --surface: #19233B;
+  --ink: #EAF0F8; --muted: #93A0B8; --line: #2D3C5E; --shadow: #05080F;
   --accent: #63E6BE; --accent-glow: rgba(99, 230, 190, 0.35); --accent-ink: #0D1322;
-  --amber: #FFBE4D; --amber-glow: rgba(255, 190, 77, 0.35);
-  --miss: #3C4A62;
-  --t1: #8E9BAE; --t2: #4CC3F0; --t3: #F0A23B; --t4: #F0629A; --t5: #B48CFF; --t5-glow: rgba(180, 140, 255, 0.35);
+  --amber: #FFBE4D; --amber-glow: rgba(255, 190, 77, 0.35); --danger: #F0629A;
+  --miss: #56637C; --t1: #A9B4C6; --t2: #4CC3F0; --t3: #FFBE4D; --t4: #F0629A; --t5: #B48CFF;
   --pixel: "Pixelify Sans", "Courier New", ui-monospace, monospace;
   --body: "IBM Plex Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -39,7 +38,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --is-night: 1;
-    --sky-top: #0A1230; --sky-bot: #2B3D72; --sun: #F3EED6; --sun-halo: #3F5189;
+    --sky-top: #0A1230; --sky-bot: #2B3D72; --space: #03050C; --sun: #F3EED6; --sun-halo: #3F5189;
     --cloud: #34426E; --cloud-shade: #27325A;
     --stone: #DCD2BC; --stone-shade: #8F8674; --stone-light: #FFF6DD;
     --copper: #3F8D77; --copper-dark: #2A6556; --copper-light: #66B79C; --gold: #F0C14B;
@@ -51,7 +50,7 @@
 }
 :root[data-theme="dark"] {
   --is-night: 1;
-  --sky-top: #0A1230; --sky-bot: #2B3D72; --sun: #F3EED6; --sun-halo: #3F5189;
+  --sky-top: #0A1230; --sky-bot: #2B3D72; --space: #03050C; --sun: #F3EED6; --sun-halo: #3F5189;
   --cloud: #34426E; --cloud-shade: #27325A;
   --stone: #DCD2BC; --stone-shade: #8F8674; --stone-light: #FFF6DD;
   --copper: #3F8D77; --copper-dark: #2A6556; --copper-light: #66B79C; --gold: #F0C14B;
@@ -60,172 +59,227 @@
   --skin: #C9A07E; --brick: #7D4A3B; --brick-dark: #5E372C; --bird: #8F9BB4;
   --title: #FFF6DD; --title-edge: #000000;
 }
-
-* { box-sizing: border-box; }
-html, body { min-height: 100%; }
-body {
-  margin: 0;
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 8px 8px;
-  color: var(--ink);
-  font: 15px/1.5 var(--body);
-  padding-block: 0 48px;
-}
+:root { box-sizing: border-box; height: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+body { height: 100%; margin: 0; overflow: hidden; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); }
+button { font: inherit; }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
-/* ---------- Hero scene ---------- */
-.hero { position: relative; height: clamp(250px, 40vw, 340px); overflow: hidden; background: var(--sky-bot); }
-.hero canvas#scene { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; display: block; }
-.hero::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(5, 8, 15, 0.08) 0 1px, transparent 1px 3px);
+#stage { position: relative; height: 100%; overflow: hidden; }
+#sky { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+#stage::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(5, 8, 15, 0.09) 0 1px, transparent 1px 3px);
 }
-.hero-inner {
-  position: relative; z-index: 1; max-width: 672px; margin: 0 auto;
-  padding-top: 18px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+#stage::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .3s;
+  box-shadow: inset 0 0 90px rgba(240, 98, 154, 0.55);
 }
-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.mark { display: flex; align-items: center; gap: 12px; }
-#mark-cv { width: 33px; height: 45px; image-rendering: pixelated; flex: none; filter: drop-shadow(2px 2px 0 var(--title-edge)); }
-.mark h1 {
-  margin: 0; font: 700 clamp(28px, 7vw, 44px)/0.95 var(--pixel); letter-spacing: 0.02em; text-transform: uppercase; color: var(--title);
-  text-shadow: -1px 0 var(--accent), 1px 0 var(--amber), 0 3px 0 var(--title-edge);
-}
-.mark p {
-  margin: 8px 0 0; display: inline-block; padding: 3px 7px; background: var(--title-edge); color: var(--title);
-  font: 500 11px/1 var(--mono); letter-spacing: 0.22em; text-transform: uppercase;
-}
-.head-right { display: flex; gap: 8px; align-items: center; }
-.modes { display: flex; gap: 0; background: var(--paper); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--shadow); }
-.modes button, .icon-btn {
-  font: 600 14px/1 var(--pixel); letter-spacing: 0.04em; border: 0; background: transparent; color: var(--muted);
-  padding: 9px 12px; cursor: pointer; text-transform: uppercase;
-}
-.modes button + button { border-left: 2px solid var(--line); }
-.modes button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-.icon-btn { border: 2px solid var(--ink); background: var(--paper); color: var(--ink); width: 36px; height: 36px; padding: 0; box-shadow: 3px 3px 0 var(--shadow); }
-.icon-btn:disabled { opacity: .35; cursor: default; }
+#stage[data-urgent]::after { opacity: 1; animation: urgent .5s steps(2) infinite; }
+@keyframes urgent { 50% { opacity: .45; } }
 
-/* ---------- Page column ---------- */
-.wrap {
-  position: relative; max-width: 672px; margin: -64px auto 0; display: flex; flex-direction: column; gap: 22px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+/* pixel panel */
+.px {
+  background: var(--panel); border: 2px solid var(--line);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
 }
-main { display: flex; flex-direction: column; gap: 22px; }
-.card {
-  background: var(--surface); border: 2px solid var(--line); padding: 22px; display: flex; flex-direction: column; gap: 18px;
-  box-shadow: 6px 6px 0 var(--shadow);
-}
-main > .card:first-child { border-color: var(--accent); box-shadow: 0 0 0 1px var(--shadow), 0 0 22px var(--accent-glow), 6px 6px 0 var(--shadow); }
-.eyebrow { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font: 500 11px/1.2 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-.eyebrow b { color: var(--accent); font-weight: 600; }
-.prompt { margin: 0; font: 600 clamp(24px, 5.6vw, 32px)/1.15 var(--pixel); letter-spacing: 0.01em; text-wrap: balance; }
-.sub { margin: -8px 0 0; color: var(--muted); font-size: 14px; }
 
-form.guess { display: flex; gap: 8px; }
-form.guess input {
-  flex: 1; min-width: 0; font: 500 17px/1 var(--body); padding: 14px; border: 2px solid var(--line); border-radius: 0;
-  background: var(--paper); color: var(--ink);
-}
-form.guess input::placeholder { color: var(--muted); }
-form.guess input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 14px var(--accent-glow); }
+/* sky markers */
+#marks { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.fl { position: absolute; top: 0; left: max(16px, env(safe-area-inset-left, 0px)); font: 500 11px/1 var(--mono); letter-spacing: .08em; white-space: nowrap; }
+.fl.r { left: auto; right: max(56px, calc(env(safe-area-inset-right, 0px) + 40px)); }
+.fl span { display: inline-block; transform: translateY(-50%); background: rgba(13, 19, 34, 0.55); color: #DCE4F2; padding: 3px 7px; }
+.fl.l span::before { content: "── "; color: #8F9BB4; }
+.fl.r span::after { content: " ──"; color: #8F9BB4; }
+.fl.zone span { color: var(--accent); font-weight: 600; letter-spacing: .2em; }
+#stage[data-phase="play"] .fl, #stage[data-phase="countdown"] .fl { opacity: .45; }
+.th { position: absolute; top: 0; left: 0; right: 0; border-top: 2px dashed var(--tc); opacity: .9; }
+.th span { position: absolute; right: max(60px, calc(env(safe-area-inset-right, 0px) + 44px)); bottom: 4px; font: 700 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--tc); background: rgba(13, 19, 34, 0.6); padding: 3px 6px; }
+.rl { position: absolute; top: 0; right: max(14px, env(safe-area-inset-right, 0px)); transform: translateY(-50%); font: 500 10px/1 var(--mono); color: #DCE4F2; padding-right: 14px; text-shadow: 0 1px 0 rgba(5, 8, 15, .8); }
+.you { position: absolute; top: 0; right: max(4px, env(safe-area-inset-right, 0px)); transform: translateY(-50%); font: 600 10px/1 var(--mono); letter-spacing: .12em; color: var(--accent); text-shadow: 0 1px 0 rgba(5, 8, 15, .8); }
+.you::after { content: " ◀"; }
+
+/* answer tag riding the balloon */
+.tag { position: absolute; z-index: 2; top: 0; left: 0; font: 600 18px/1 var(--pixel); letter-spacing: .06em; padding: 8px 12px; color: var(--tc, var(--ink)); white-space: nowrap; max-width: 70vw; overflow: hidden; text-overflow: ellipsis; --tc: var(--ink); transition: color .2s; }
+.tag[data-t="1"] { --tc: var(--t1); } .tag[data-t="2"] { --tc: var(--t2); } .tag[data-t="3"] { --tc: var(--t3); } .tag[data-t="4"] { --tc: var(--t4); } .tag[data-t="5"] { --tc: var(--t5); }
+.tag.px { border-color: var(--tc); }
+
+/* HUD */
+.hud { position: absolute; z-index: 3; top: 12px; left: 0; right: 0; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start;
+  padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+.hbox { padding: 8px 14px 9px; min-width: 112px; background: var(--panel-solid); }
+.hbox span { display: block; font: 500 10px/1 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+.hbox b { display: block; margin-top: 6px; font: 700 24px/1 var(--mono); letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--accent); text-shadow: 0 0 14px var(--accent-glow); }
+.hbox.right { text-align: right; } .hbox.right b { color: var(--amber); text-shadow: 0 0 14px var(--amber-glow); }
+.hbox b.bump { animation: bump .45s steps(3); }
+@keyframes bump { 40% { transform: scale(1.25); } }
+.pipwrap { justify-self: center; text-align: center; padding-top: 4px; }
+.pips { display: flex; gap: 4px; justify-content: center; }
+.pip { width: 15px; height: 15px; display: block; background: rgba(13, 19, 34, 0.7); border: 2px solid var(--line); }
+.pip.done { background: var(--tc); border-color: var(--outline); }
+.pip.now { border-color: var(--accent); background: var(--accent); animation: blink .8s steps(2) infinite; }
+@keyframes blink { 50% { background: transparent; } }
+#pip-label { display: block; margin-top: 6px; font: 500 10px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: #DCE4F2; text-shadow: 0 1px 0 rgba(5, 8, 15, .8); }
+.corner-btn { position: absolute; z-index: 4; top: 82px; left: max(14px, env(safe-area-inset-left, 0px)); width: 38px; height: 34px; padding: 0; border: 2px solid var(--line); background: var(--panel-solid); color: var(--ink); font: 700 16px/1 var(--pixel); cursor: pointer; }
+#stage[data-phase="title"] .corner-btn, #stage[data-phase="summary"] .corner-btn, #stage[data-phase="party"] .corner-btn { top: 12px; }
+
+/* title screen */
+.title-screen { position: absolute; z-index: 3; left: 0; right: 0; top: clamp(40px, 11vh, 120px); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#mark-cv { width: 44px; height: 60px; image-rendering: pixelated; filter: drop-shadow(3px 3px 0 var(--title-edge)); }
+.wordmark { margin: 0; font: 700 clamp(44px, 12vw, 104px)/0.9 var(--pixel); letter-spacing: .03em; text-transform: uppercase; color: var(--title);
+  text-shadow: -2px 0 var(--accent), 2px 0 var(--amber), 0 5px 0 var(--title-edge); animation: flicker 6s steps(1) infinite; }
+@keyframes flicker { 0%, 96%, 100% { transform: none; } 97% { transform: translateX(2px); text-shadow: -4px 0 var(--accent), 4px 0 var(--amber), 0 5px 0 var(--title-edge); } 98% { transform: translateX(-2px); } }
+.tagline { margin: 0; padding: 4px 10px; background: var(--title-edge); color: var(--title); font: 600 13px/1 var(--mono); letter-spacing: .32em; text-transform: uppercase; }
+.rules-line { margin: 0; font: 500 13px/1.4 var(--mono); letter-spacing: .08em; color: #F4F7FC; text-shadow: 0 1px 0 rgba(5, 8, 15, .9), 0 0 8px rgba(5, 8, 15, .6); }
+.title-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.run-no { margin: 0; font: 500 11px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: #F4F7FC; text-shadow: 0 1px 0 rgba(5, 8, 15, .9); }
+.foot { position: fixed; left: 0; right: 0; bottom: max(4px, env(safe-area-inset-bottom, 0px)); text-align: center; margin: 0; font: 500 10px/1.4 var(--mono); color: #DCE4F2; text-shadow: 0 1px 0 rgba(5, 8, 15, .9); }
+
+/* buttons */
 .btn {
-  font: 600 16px/1 var(--pixel); letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 13px 18px; border: 2px solid var(--ink); border-radius: 0;
-  background: var(--ink); color: var(--paper); cursor: pointer; white-space: nowrap; box-shadow: 0 4px 0 var(--shadow);
-  transition: transform .06s, box-shadow .06s;
+  font: 600 16px/1 var(--pixel); letter-spacing: .14em; text-transform: uppercase; padding: 14px 20px; cursor: pointer; white-space: nowrap;
+  border: 2px solid var(--ink); background: var(--panel-solid); color: var(--ink); box-shadow: 0 4px 0 var(--shadow); transition: transform .06s, box-shadow .06s;
 }
 .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--shadow); }
-.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
-.btn.accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 4px 0 var(--shadow), 0 0 18px var(--accent-glow); }
-.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.accent { border-color: var(--accent); color: var(--accent); box-shadow: 0 4px 0 var(--shadow), 0 0 18px var(--accent-glow); }
+.btn.amber { border-color: var(--amber); color: var(--amber); box-shadow: 0 4px 0 var(--shadow), 0 0 18px var(--amber-glow); }
+.btn.ghost { border-color: var(--line); color: var(--ink); }
+.btn.small { font-size: 13px; padding: 10px 14px; }
+.btn.launch { font-size: clamp(20px, 5vw, 26px); padding: 18px 44px; margin-top: 8px; border-color: var(--accent); color: var(--ink); background: var(--panel-solid);
+  box-shadow: 0 5px 0 var(--shadow), 0 0 0 2px var(--panel-solid), 0 0 26px var(--accent-glow); animation: glow 2.4s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 5px 0 var(--shadow), 0 0 0 2px var(--panel-solid), 0 0 40px var(--accent-glow); } }
+.btn:disabled { opacity: .4; cursor: default; }
 
+/* prompt card */
+.pcard { position: absolute; z-index: 3; top: clamp(96px, 15vh, 140px); left: 50%; transform: translateX(-50%); width: min(600px, calc(100% - 32px)); padding: 20px 24px 18px; }
+.pcard .eyebrow { margin: 0; font: 500 11px/1 var(--mono); letter-spacing: .3em; text-transform: uppercase; color: var(--danger); }
+.prompt { margin: 12px 0 0; font: 600 clamp(22px, 5vw, 32px)/1.2 var(--pixel); letter-spacing: .02em; text-wrap: balance; }
+.psub { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.climb-hint { margin: 12px 0 0; font: 500 11px/1 var(--mono); letter-spacing: .2em; color: var(--muted); }
+.pcard.in { animation: cardIn .4s steps(5); }
+.pcard.out, .bar.out { animation: cardOut .28s steps(4) forwards; }
+@keyframes cardIn { from { opacity: 0; transform: translate(-50%, -16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes cardOut { to { opacity: 0; } }
+
+/* answer bar */
+.bar { position: absolute; z-index: 3; left: 50%; transform: translateX(-50%); bottom: max(16px, env(safe-area-inset-bottom, 0px)); width: min(680px, calc(100% - 32px)); }
+.hint { margin: 0 0 8px; min-height: 18px; text-align: center; font: 500 13px/1.3 var(--mono); color: var(--amber); text-shadow: 0 1px 0 rgba(5, 8, 15, .9); }
+.bar-row { display: flex; gap: 10px; align-items: center; }
+.ring { position: relative; width: 58px; height: 58px; flex: none; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: rgba(13, 19, 34, 0.9); stroke-width: 4; }
+.ring .track { stroke: var(--line); }
+.ring .prog { fill: none; stroke: var(--accent); stroke-dasharray: 138.23; stroke-dashoffset: 0; filter: drop-shadow(0 0 4px var(--accent-glow)); }
+.ring b { position: absolute; inset: 0; display: grid; place-items: center; font: 700 20px/1 var(--mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+#stage[data-urgent] .ring .prog { stroke: var(--danger); }
+#stage[data-urgent] .ring b { color: var(--danger); animation: blinkTxt .5s steps(2) infinite; }
+@keyframes blinkTxt { 50% { opacity: .35; } }
+.bar input { flex: 1; min-width: 0; height: 56px; padding: 0 16px; font: 500 18px/1 var(--mono); color: var(--ink); background: rgba(13, 19, 34, 0.92); border: 2px solid var(--accent); border-radius: 0; box-shadow: 0 0 16px var(--accent-glow); }
+.bar input::placeholder { color: var(--muted); }
+.bar input:focus { outline: none; }
+.launch-btn { height: 56px; border-color: var(--danger); color: var(--ink); background: #3A1730; box-shadow: 0 4px 0 var(--shadow), 0 0 16px rgba(240, 98, 154, .35); }
+.timebar { margin-top: 8px; height: 3px; background: var(--line); }
+.timebar i { display: block; height: 100%; background: var(--accent); transform-origin: left; box-shadow: 0 0 8px var(--accent-glow); }
+#stage[data-urgent] .timebar i { background: var(--danger); }
+.nudge { animation: nudge .3s steps(3); }
+@keyframes nudge { 33% { transform: translateX(-7px); } 66% { transform: translateX(7px); } }
+
+.toast { position: absolute; z-index: 3; left: 50%; bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 16px)); transform: translateX(-50%); padding: 12px 20px; font: 500 13px/1 var(--mono); letter-spacing: .14em; white-space: nowrap; }
+.toast b { color: var(--accent); font: 700 16px/1 var(--pixel); }
+
+/* result card */
+.result { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100% - 32px)); text-align: center; padding: 26px 22px 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; border-color: var(--tc); }
+.result.in { animation: resIn .45s steps(5); }
+@keyframes resIn { from { opacity: 0; transform: translate(-50%, -42%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+.tier-sprite { width: 72px; height: 72px; image-rendering: pixelated; filter: drop-shadow(0 0 12px var(--tc)); animation: pop .6s steps(6); }
+@keyframes pop { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.3); } 100% { transform: none; } }
+.tier-name { position: relative; margin: 4px 0 0; font: 700 clamp(34px, 9vw, 46px)/1 var(--pixel); letter-spacing: .14em; text-transform: uppercase; color: var(--tc); text-shadow: 0 0 18px var(--tc); animation: glitch .7s steps(1); }
+@keyframes glitch { 0% { opacity: 0; } 15% { opacity: 1; transform: translateX(-4px); text-shadow: 4px 0 var(--accent), -4px 0 var(--danger); } 30% { transform: translateX(3px); } 45% { transform: none; text-shadow: 0 0 18px var(--tc); } 60% { opacity: .6; } 75% { opacity: 1; } }
+.r-answer { margin: 4px 0 0; font: 600 20px/1.2 var(--pixel); letter-spacing: .04em; }
+.r-answer.muted { color: var(--muted); }
+.r-pts { margin: 2px 0 0; font: 600 14px/1.3 var(--mono); letter-spacing: .04em; }
+.r-pts b { color: var(--tc); font: 700 18px/1 var(--mono); }
+.r-note { margin: 4px 0 0; font: 500 12px/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); }
+.r-est { margin: 0; font: 500 11px/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); }
+.r-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+
+/* panel (summary, party) */
+.panel { position: absolute; z-index: 2; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.panel-inner { max-width: 680px; margin: 0 auto; padding-top: clamp(64px, 16vh, 150px); padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { display: flex; flex-direction: column; gap: 20px; }
+.card { background: var(--panel); border: 2px solid var(--line); padding: 22px; display: flex; flex-direction: column; gap: 16px; box-shadow: 6px 6px 0 var(--shadow); }
+main > .card:first-child { border-color: var(--accent); box-shadow: 0 0 22px var(--accent-glow), 6px 6px 0 var(--shadow); }
+.eyebrow { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font: 500 11px/1.2 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.eyebrow b { color: var(--accent); font-weight: 600; }
+.card .prompt { margin: 0; }
+.sub { margin: -6px 0 0; color: var(--muted); font-size: 14px; }
 .feedback { min-height: 22px; font: 500 14px/1.4 var(--mono); color: var(--muted); }
-.feedback.hit { color: var(--ink); }
-.feedback.gem { color: var(--t5); font-weight: 600; }
-
-/* Element tiles */
-.slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-.tile {
-  aspect-ratio: 1 / 1.12; max-width: 100%; position: relative; padding: 6px;
-  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-  border: 2px dashed var(--line); background: transparent; min-width: 0;
-}
-.tile .n { position: absolute; top: 5px; left: 6px; font: 600 10px/1 var(--mono); }
-.tile .p { position: absolute; top: 5px; right: 6px; font: 500 10px/1 var(--mono); color: var(--muted); }
-.tile .sym { font: 700 clamp(20px, 6vw, 30px)/1 var(--pixel); }
-.tile .nm { font: 500 10px/1.15 var(--body); margin-top: 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; max-width: 100%; }
-.tile.filled { border-style: solid; background: var(--surface-2); box-shadow: 3px 3px 0 var(--shadow); animation: drop .3s steps(4); }
-.tile.miss { border-color: var(--miss); color: var(--muted); }
-.tile.miss .sym { font-size: clamp(16px, 4.6vw, 22px); }
-.tile.t1 { border-color: var(--t1); } .tile.t1 .n { color: var(--t1); }
-.tile.t2 { border-color: var(--t2); } .tile.t2 .n { color: var(--t2); }
-.tile.t3 { border-color: var(--t3); } .tile.t3 .n { color: var(--t3); }
-.tile.t4 { border-color: var(--t4); } .tile.t4 .n { color: var(--t4); }
-.tile.t5 { border-color: var(--t5); box-shadow: 3px 3px 0 var(--shadow), 0 0 16px var(--t5-glow); } .tile.t5 .n, .tile.t5 .sym { color: var(--t5); }
-@keyframes drop { from { transform: translateY(-8px); opacity: .3; } to { transform: none; opacity: 1; } }
-
+.feedback.hit { color: var(--ink); } .feedback.gem { color: var(--t5); font-weight: 600; }
 .scoreline { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.score { font: 700 30px/1 var(--pixel); font-variant-numeric: tabular-nums; color: var(--amber); }
-.score span { font: 500 11px/1 var(--mono); color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-left: 8px; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 500 11px/1.3 var(--mono); color: var(--muted); }
-.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; }
-
-/* Reveal */
-.reveal h2, .summary h2 { margin: 0; font: 600 20px/1.2 var(--pixel); letter-spacing: .02em; }
-.gemcall { display: flex; gap: 14px; align-items: center; padding: 14px; border: 2px solid var(--t5); background: var(--paper); box-shadow: 0 0 18px var(--t5-glow); }
-.gemcall .tile { width: 72px; flex: none; }
-.gemcall p { margin: 0; }
-.gemcall .lbl { font: 600 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--t5); }
-.gemcall .gname { font: 600 20px/1.2 var(--pixel); margin-top: 6px; }
-.gemcall .gnote { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.chart { display: flex; flex-direction: column; gap: 2px; }
-.row { display: grid; grid-template-columns: minmax(0, 1fr) 34% 52px; gap: 10px; align-items: center; padding: 5px 6px; font-size: 13.5px; }
-.row .an { min-width: 0; overflow-wrap: anywhere; }
-.row.found { background: var(--surface-2); font-weight: 600; }
-.row.found .an::before { content: "▸ "; color: var(--accent); }
-.bar { height: 8px; background: var(--paper); overflow: hidden; }
-.bar b { display: block; height: 100%; }
-.row .pc { font: 500 12px/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
-.chart-head { display: grid; grid-template-columns: minmax(0,1fr) 34% 52px; gap: 10px; padding: 0 6px 6px; font: 500 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--line); margin-bottom: 4px; }
-.chart-head span:last-child { text-align: right; }
-.fineprint { font-size: 12px; color: var(--muted); margin: 0; }
-
-/* Summary */
-.rounds { display: flex; flex-direction: column; gap: 8px; }
-.rline { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 12px; border: 2px solid var(--line); background: var(--paper); }
-.rline .rp { min-width: 0; font-size: 14px; }
-.rline .em { font-size: 15px; letter-spacing: 1px; white-space: nowrap; }
-.rline .rs { font: 700 18px/1 var(--pixel); font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; color: var(--amber); }
-.big { font: 700 clamp(46px, 12vw, 68px)/1 var(--pixel); color: var(--amber); text-shadow: 0 0 22px var(--amber-glow); overflow-wrap: anywhere; }
+form.guess { display: flex; gap: 8px; }
+form.guess input { flex: 1; min-width: 0; font: 500 17px/1 var(--body); padding: 14px; border: 2px solid var(--line); border-radius: 0; background: var(--paper); color: var(--ink); }
+form.guess input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 14px var(--accent-glow); }
+.big { font: 700 clamp(42px, 11vw, 64px)/1 var(--pixel); color: var(--amber); text-shadow: 0 0 22px var(--amber-glow); overflow-wrap: anywhere; }
 .big span { font: 500 13px/1 var(--mono); color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-left: 10px; text-shadow: none; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.stat { border: 2px solid var(--line); padding: 10px; background: var(--paper); }
-.stat b { display: block; font: 700 24px/1 var(--pixel); font-variant-numeric: tabular-nums; }
-.stat span { font: 500 10px/1.2 var(--mono); color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
-textarea.share { width: 100%; min-height: 110px; resize: vertical; font: 13px/1.5 var(--mono); padding: 10px; border: 2px solid var(--line); border-radius: 0; background: var(--paper); color: var(--ink); }
-.countdown { font: 500 13px/1.4 var(--mono); color: var(--muted); }
+.icon-btn { border: 2px solid var(--ink); background: var(--paper); color: var(--ink); width: 36px; height: 36px; padding: 0; cursor: pointer; box-shadow: 3px 3px 0 var(--shadow); }
+.icon-btn:disabled { opacity: .35; cursor: default; }
 
-/* Help overlay */
-.overlay { position: fixed; inset: 0; background: rgba(5, 8, 15, 0.7); display: grid; place-items: center; z-index: 20;
+/* summary */
+.sum-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.wm-small { font: 700 22px/1 var(--pixel); letter-spacing: .06em; text-transform: uppercase; color: var(--title); text-shadow: -1px 0 var(--accent), 1px 0 var(--amber); }
+.big-score { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.big-score b { font: 700 clamp(60px, 16vw, 96px)/0.9 var(--mono); letter-spacing: -.04em; color: var(--ink); letter-spacing: .02em; }
+.big-score span { font: 600 18px/1 var(--mono); color: var(--accent); letter-spacing: .06em; }
+.hist { display: flex; align-items: flex-end; gap: 2px; height: 110px; padding-bottom: 2px; border-bottom: 2px solid var(--line); }
+.hist i { flex: 1; min-width: 0; background: rgba(76, 195, 240, 0.35); border-top: 2px solid var(--t2); }
+.hist i.me { background: var(--danger); border-top-color: var(--danger); box-shadow: 0 0 12px rgba(240, 98, 154, .5); }
+.hist-axis { display: flex; justify-content: space-between; font: 500 10px/1 var(--mono); color: var(--muted); margin-top: -10px; }
+.better { margin: 0; font: 600 13px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--t2); }
+.card h3 { margin: 6px 0 0; display: flex; gap: 12px; align-items: baseline; font: 600 13px/1 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
+.card h3 small { font-size: 10px; letter-spacing: .14em; color: var(--muted); opacity: .8; }
+.log { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; height: 170px; align-items: end; }
+.lcol { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
+.lcol canvas { width: 28px; height: 28px; image-rendering: pixelated; }
+.lcol i { display: block; width: 4px; background: var(--tc); box-shadow: 0 0 8px var(--tc); }
+.lcol span { font: 500 10px/1 var(--mono); color: var(--muted); }
+.catch { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.catch li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; background: rgba(5, 8, 15, 0.35); border-left: 3px solid var(--tc); }
+.catch .n { font: 600 14px/1 var(--mono); color: var(--muted); }
+.catch .q { margin: 0; font: 500 11px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.catch .a { margin: 4px 0 0; font: 600 15px/1.3 var(--body); overflow-wrap: anywhere; }
+.catch .a small { font: 500 12px/1 var(--mono); color: var(--muted); margin-left: 6px; }
+.catch b { font: 700 17px/1 var(--mono); color: var(--tc); }
+.ranks { display: flex; flex-direction: column; gap: 4px; }
+.rank { display: grid; grid-template-columns: 76px 100px minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 10px; font-size: 13px; color: var(--muted); }
+.rank .rr { font: 500 12px/1 var(--mono); }
+.rank b { font: 600 15px/1 var(--pixel); color: var(--tc); letter-spacing: .06em; text-transform: uppercase; }
+.rank.me { background: rgba(5, 8, 15, 0.45); outline: 2px solid var(--tc); color: var(--ink); }
+textarea.share { width: 100%; min-height: 84px; resize: none; font: 13px/1.5 var(--mono); padding: 10px; border: 2px solid var(--line); border-radius: 0; background: rgba(5, 8, 15, 0.5); color: var(--ink); }
+.countdown { margin: 0; font: 500 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { border: 2px solid var(--line); padding: 10px; background: rgba(5, 8, 15, 0.35); }
+.stat b { display: block; font: 700 24px/1 var(--mono); }
+.stat span { font: 500 10px/1.2 var(--mono); color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+
+/* overlays */
+.overlay { position: absolute; inset: 0; z-index: 10; background: rgba(5, 8, 15, 0.72); display: grid; place-items: center;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-.overlay .card { max-width: 540px; width: 100%; max-height: 100%; overflow-y: auto; border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow), 6px 6px 0 var(--shadow); }
-.overlay h2 { margin: 0; font: 700 26px/1.1 var(--pixel); text-transform: uppercase; letter-spacing: .04em; }
+.overlay .card { width: min(540px, 100%); max-height: 100%; overflow-y: auto; border-color: var(--accent); background: var(--panel-solid); box-shadow: 0 0 24px var(--accent-glow), 6px 6px 0 var(--shadow); }
+.overlay h2 { margin: 0; font: 700 26px/1.1 var(--pixel); letter-spacing: .08em; text-transform: uppercase; }
 .overlay ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
 .overlay li::marker { color: var(--accent); font-family: var(--mono); }
-.tiers { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14px; align-items: center; }
-.tiers .sw { width: 14px; height: 14px; }
-.tiers .pt { font: 600 13px/1 var(--mono); text-align: right; }
+.tiers { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; font-size: 14px; }
+.tiers canvas { width: 30px; height: 30px; image-rendering: pixelated; }
+.tiers b { font: 600 15px/1 var(--pixel); letter-spacing: .08em; text-transform: uppercase; }
+.tiers .pt { font: 600 13px/1 var(--mono); text-align: right; color: var(--amber); }
+.menu-list { display: flex; flex-direction: column; gap: 10px; }
+.menu-list .btn { width: 100%; text-align: left; }
+.fine { margin: 0; font-size: 12px; color: var(--muted); }
 
-/* ---------- Hot Flask party mode ---------- */
+/* Hot Flask party mode */
 .plist { display: flex; flex-direction: column; gap: 8px; }
 .prow { display: grid; grid-template-columns: 28px minmax(0, 1fr) 36px; gap: 8px; align-items: center; }
 .prow .pnum { font: 700 16px/1 var(--pixel); color: var(--accent); text-align: center; }
@@ -235,7 +289,7 @@ textarea.share { width: 100%; min-height: 110px; resize: vertical; font: 13px/1.
 .seg button { font: 600 13px/1 var(--pixel); letter-spacing: .04em; text-transform: uppercase; border: 0; background: transparent; color: var(--muted); padding: 10px 12px; cursor: pointer; }
 .seg button + button { border-left: 2px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--amber); color: var(--accent-ink); }
-.holder { display: flex; align-items: center; gap: 16px; padding: 14px; background: var(--paper); border: 2px solid var(--line); }
+.holder { display: flex; align-items: center; gap: 16px; padding: 14px; background: rgba(5, 8, 15, 0.45); border: 2px solid var(--line); }
 .holder .lbl { margin: 0; font: 600 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .holder .hname { margin: 6px 0 0; font: 700 clamp(26px, 7vw, 38px)/1 var(--pixel); overflow-wrap: anywhere; }
 .flask { width: 64px; flex: none; transform-origin: 50% 90%; animation: jiggle 1.4s steps(2) infinite; }
@@ -244,8 +298,6 @@ textarea.share { width: 100%; min-height: 110px; resize: vertical; font: 13px/1.
 .flask.burst { animation: shake .45s steps(3) 2; }
 @keyframes jiggle { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 33% { transform: translateX(-5px) rotate(-6deg); } 66% { transform: translateX(5px) rotate(6deg); } }
-.nudge { animation: nudge .3s steps(3); }
-@keyframes nudge { 0%, 100% { transform: translateX(0); } 33% { transform: translateX(-6px); } 66% { transform: translateX(6px); } }
 .pchips, .uchips { display: flex; flex-wrap: wrap; gap: 6px; }
 .pchip { display: inline-flex; gap: 8px; align-items: center; padding: 6px 10px; border: 2px solid var(--line); font: 600 14px/1 var(--pixel); background: var(--paper); }
 .pchip .lv { font: 500 11px/1 var(--mono); color: var(--t4); letter-spacing: 1px; }
@@ -256,75 +308,123 @@ textarea.share { width: 100%; min-height: 110px; resize: vertical; font: 13px/1.
 .uchip.t1 { border-left-color: var(--t1); } .uchip.t2 { border-left-color: var(--t2); } .uchip.t3 { border-left-color: var(--t3); } .uchip.t4 { border-left-color: var(--t4); } .uchip.t5 { border-left-color: var(--t5); }
 .boom { font: 700 clamp(30px, 8vw, 44px)/1.05 var(--pixel); color: var(--t4); margin: 0; text-wrap: balance; text-shadow: 0 0 18px rgba(240, 98, 154, 0.4); }
 
-footer { text-align: center; font: 500 11px/1.6 var(--mono); color: var(--muted); letter-spacing: .04em; }
-
-@media (prefers-reduced-motion: reduce) { .tile.filled, .flask, .flask.burst, .nudge { animation: none !important; } }
-@media (max-width: 420px) {
+@media (max-width: 520px) {
+  .hbox { min-width: 0; padding: 7px 10px 8px; }
+  .hbox b { font-size: 18px; }
+  .pip { width: 11px; height: 11px; }
+  .corner-btn { top: 74px; }
+  .pcard { padding: 16px 16px 14px; top: 118px; }
+  .ring { width: 50px; height: 50px; }
+  .bar input, .launch-btn { height: 50px; }
+  .launch-btn { padding: 0 12px; font-size: 14px; }
+  .bar-row { gap: 8px; }
+  .rank { grid-template-columns: 64px 86px minmax(0, 1fr); font-size: 12px; }
   .card { padding: 16px; }
-  .slots { gap: 5px; }
-  .tile { padding: 4px; }
-  .tile .nm { font-size: 9px; }
-  .tile .p { display: none; }
-  .row, .chart-head { grid-template-columns: minmax(0,1fr) 28% 44px; gap: 8px; }
-  .modes button { padding: 9px 9px; font-size: 13px; }
-  .wrap { margin-top: -20px; }
+  .th span { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; }
 }
 </style>
 
 </head>
 <body>
-<div class="hero">
-  <canvas id="scene" aria-hidden="true"></canvas>
-  <div class="hero-inner">
-    <header>
-      <div class="mark">
-        <canvas id="mark-cv" width="11" height="15" aria-hidden="true"></canvas>
-        <div>
-          <h1>Imperillion</h1>
-          <p>Find the rarest answer</p>
-        </div>
-      </div>
-      <div class="head-right">
-      <div class="modes" role="group" aria-label="Game mode">
-        <button type="button" id="mode-daily" aria-pressed="true">Daily</button>
-        <button type="button" id="mode-unlimited" aria-pressed="false">Unlimited</button>
-        <button type="button" id="mode-party" aria-pressed="false">Party</button>
-      </div>
-      <button type="button" class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+<div id="stage" data-phase="title">
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div id="marks" aria-hidden="true"></div>
+  <div id="tag" class="tag px" hidden></div>
+
+  <header class="hud" id="hud" hidden>
+    <div class="hbox px"><span>Altitude</span><b id="h-alt">0m</b></div>
+    <div class="pipwrap"><div class="pips" id="pips"></div><span id="pip-label"></span></div>
+    <div class="hbox px right"><span>Score</span><b id="h-score">0</b></div>
+  </header>
+  <button type="button" class="corner-btn" id="menu-btn" aria-label="Menu">≡</button>
+
+  <section class="title-screen" id="title-screen" aria-labelledby="wm">
+    <canvas id="mark-cv" width="11" height="15" aria-hidden="true"></canvas>
+    <h1 class="wordmark" id="wm">Imperillion</h1>
+    <p class="tagline">Find the rarest answer</p>
+    <p class="rules-line">7 prompts · 25 seconds each · rarer answers climb higher</p>
+    <button type="button" class="btn launch" id="launch">▲ Launch</button>
+    <div class="title-row">
+      <button type="button" class="btn ghost small" id="t-unl">Unlimited ∞</button>
+      <button type="button" class="btn ghost small" id="t-party">Hot Flask party</button>
+      <button type="button" class="btn ghost small" id="t-help">How to play</button>
     </div>
-    </header>
+    <p class="run-no" id="run-no"></p>
+    <p class="foot">Unofficial fan trivia. Not affiliated with Imperial College London.</p>
+  </section>
+
+  <section class="pcard px" id="pcard" hidden>
+    <p class="eyebrow" id="p-eyebrow"></p>
+    <h2 class="prompt" id="p-text"></h2>
+    <p class="psub" id="p-sub"></p>
+    <p class="climb-hint">▲ rarer answers climb higher ▲</p>
+  </section>
+
+  <div class="toast px" id="toast" hidden></div>
+  <section class="result px" id="result" hidden aria-live="polite"></section>
+
+  <form class="bar" id="bar" hidden autocomplete="off">
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="bar-row">
+      <div class="ring" aria-hidden="true"><svg viewBox="0 0 52 52"><circle class="track" cx="26" cy="26" r="22"/><circle class="prog" id="ring-prog" cx="26" cy="26" r="22"/></svg><b id="ring-n">25</b></div>
+      <input id="answer" type="text" maxlength="80" placeholder="type one answer…" aria-label="Your answer" autocapitalize="off" autocomplete="off" spellcheck="false" enterkeyhint="go">
+      <button class="btn launch-btn" type="submit">Launch</button>
+    </div>
+    <div class="timebar"><i id="timebar"></i></div>
+  </form>
+
+  <div class="panel" id="panel" hidden><div class="panel-inner"><main id="main"></main></div></div>
+
+  <div class="overlay" id="menu" hidden>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+      <h2 id="menu-title">Menu</h2>
+      <div class="menu-list">
+        <button type="button" class="btn accent" id="m-daily">▲ Daily climb</button>
+        <button type="button" class="btn ghost" id="m-unl">Unlimited ∞</button>
+        <button type="button" class="btn ghost" id="m-party">Hot Flask party</button>
+        <button type="button" class="btn ghost" id="m-help">How to play</button>
+        <button type="button" class="btn ghost" id="m-home">Back to campus</button>
+      </div>
+      <p class="fine" id="m-warn" hidden>Leaving now counts this prompt as out of time.</p>
+      <button type="button" class="btn small ghost" id="m-close">Close</button>
+    </div>
   </div>
-</div>
 
-<div class="wrap">
-  <main id="main"></main>
-
-  <footer>Unofficial fan trivia. Not affiliated with Imperial College London.<br>Abundance figures are hand-estimated, not live player data.</footer>
-</div>
-
-<div class="overlay" id="help" hidden>
-  <div class="card" role="dialog" aria-modal="true" aria-labelledby="help-title">
-    <h2 id="help-title">How to play</h2>
-    <ol>
-      <li>Each prompt has a list of accepted answers. Every answer has an <b>abundance</b>: the share of players we reckon would think of it.</li>
-      <li>You get <b>5 guesses</b> per prompt. A guess that isn't on the list still uses one up.</li>
-      <li>Obvious answers score little. Obscure ones score big. Hit the single rarest answer and the round ends with a bonus.</li>
-      <li>Spelling is forgiving: small typos, common abbreviations and surnames are accepted.</li>
-      <li><b>Daily</b> is three prompts, the same for everyone, once a day. <b>Unlimited</b> keeps dealing prompts.</li>
-      <li><b>Party</b> is Hot Flask, for 2–8 players sharing one device. Name an unused answer to pass the flask on. It boils over at a hidden moment 10–30 seconds after it's lit, and whoever holds it loses a life. Passing keeps the time that's left, but never less than 8 seconds. Saying the rarest answer wins a life back.</li>
-    </ol>
-    <div class="tiers">
-      <i class="sw" style="background:var(--t1)"></i><span>Abundant · 30% or more</span><span class="pt">+1</span>
-      <i class="sw" style="background:var(--t2)"></i><span>Common · 12–30%</span><span class="pt">+2</span>
-      <i class="sw" style="background:var(--t3)"></i><span>Scarce · 5–12%</span><span class="pt">+4</span>
-      <i class="sw" style="background:var(--t4)"></i><span>Rare · under 5%</span><span class="pt">+7</span>
-      <i class="sw" style="background:var(--t5)"></i><span>Rarest answer on the list</span><span class="pt">+15</span>
+  <div class="overlay" id="help" hidden>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <h2 id="help-title">How to play</h2>
+      <ol>
+        <li>Each prompt has a hidden list of accepted answers about Imperial and South Ken. Every answer has an <b>abundance</b>: how many players we reckon would think of it.</li>
+        <li>You get <b>25 seconds</b> and <b>one answer</b> per prompt. If what you type isn't on the list, nothing launches and you can try again until the clock runs out.</li>
+        <li>Your answer lifts off Queen's Lawn on a weather balloon. <b>Rarer answers climb higher</b> and score more.</li>
+        <li><b>Daily climb</b> is 7 prompts, the same for everyone, once a day. <b>Unlimited</b> keeps going. <b>Hot Flask</b> is a pass-the-phone party game.</li>
+      </ol>
+      <div class="tiers" id="tiers"></div>
+      <p class="fine">Spelling is forgiving: small typos, abbreviations and surnames count. Abundance figures are hand-estimated, not live player data.</p>
+      <button type="button" class="btn accent" id="help-close">Got it</button>
     </div>
-    <button type="button" class="btn" id="help-close">Start playing</button>
   </div>
 </div>
 
 <script>
+/* ---------- Utilities ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const store = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const fmtPct = p => p < 2 ? p.toFixed(1) + "%" : Math.round(p) + "%";
+const fmtM = m => Math.round(m).toLocaleString("en-GB") + "m";
+const rngOf = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+function dateKey(d = new Date()) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+const EPOCH = new Date(2026, 10, 18);
+function dayNumber() { const t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((t - EPOCH) / 864e5) + 1; }
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
 /* ---------- Question bank ----------
    [answer, abundance %, [aliases]]  — abundance is an editorial estimate.
    people:true also accepts a surname on its own. */
@@ -998,233 +1098,29 @@ function match(cat, text) {
   return best;
 }
 
-/* ---------- Scoring ---------- */
-const POINTS = [0, 1, 2, 4, 7, 15];
-const TIER_NAME = ["Miss", "Abundant", "Common", "Scarce", "Rare", "Rarest"];
-const EMOJI = ["⬛", "⬜", "🟩", "🟧", "🟪", "💎"];
+
+/* ---------- Tiers ---------- */
+const TIERS = [
+  { name: "Out of time", pts: 0, color: "--miss", em: "⬛", sprite: "pop", note: "The balloon never left the lawn." },
+  { name: "Fresher", pts: 10, color: "--t1", em: "⬜", sprite: "pigeon", note: "The answer the whole lecture theatre shouts.", range: "25% or more" },
+  { name: "Undergrad", pts: 30, color: "--t2", em: "🟦", sprite: "kite", note: "Solid. You did the reading.", range: "10–25%" },
+  { name: "Postgrad", pts: 55, color: "--t3", em: "🟧", sprite: "plane", note: "Proper specialist knowledge. Nice.", range: "4–10%" },
+  { name: "Professor", pts: 80, color: "--t4", em: "🟥", sprite: "cap", note: "Obscure enough for tenure.", range: "under 4%" },
+  { name: "Nobel", pts: 120, color: "--t5", em: "🟪", sprite: "medal", note: "One in Imperillion. Almost nobody gets up here.", range: "the rarest answers" }
+];
+const TIER_NAME = TIERS.map(t => t.name);
 function tierOf(cat, i) {
   if (i === cat.rarest) return 5;
   const p = cat.answers[i].pct;
-  return p >= 30 ? 1 : p >= 12 ? 2 : p >= 5 ? 3 : 4;
+  return p >= 25 ? 1 : p >= 10 ? 2 : p >= 4 ? 3 : p >= 1.6 ? 4 : 5;
 }
-const GUESSES = 5;
-const fmtPct = p => p < 2 ? p.toFixed(1) + "%" : Math.round(p) + "%";
-function sym(name) {
-  const words = norm(name).split(" ").filter(Boolean);
-  if (!words.length) return "?";
-  if (words.length === 1) return words[0][0].toUpperCase() + (words[0][1] || "");
-  return words[0][0].toUpperCase() + words[1][0];
-}
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
-/* ---------- Daily seed ---------- */
-function dateKey(d = new Date()) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
-const EPOCH = new Date(2026, 10, 18);
-function dayNumber() { const t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((t - EPOCH) / 864e5) + 1; }
-function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-function dailyRounds() {
-  const r = rng(dayNumber() * 7919 + 17);
-  const idx = CATS.map((_, i) => i);
-  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
-  return idx.slice(0, 3);
-}
-
-/* ---------- Storage (best effort) ---------- */
-const store = {
-  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
-};
-
-/* ---------- State ---------- */
-let mode = "daily";
-let game;           // { rounds:[catIdx], r, guesses:[[{t, idx}]], over:[bool] }
-let unl = { total: 0, played: 0, last: -1 };
-const main = document.getElementById("main");
-
-function newDaily() {
-  const saved = store.get("it-daily");
-  if (saved && saved.date === dateKey()) return saved;
-  return { date: dateKey(), rounds: dailyRounds(), r: 0, guesses: [[], [], []], over: [false, false, false], finished: false };
-}
-function newUnlimitedRound() {
-  let c; do { c = Math.floor(Math.random() * CATS.length); } while (c === unl.last && CATS.length > 1);
-  unl.last = c;
-  return { rounds: [c], r: 0, guesses: [[]], over: [false] };
-}
-function saveDaily() { if (mode === "daily") store.set("it-daily", game); }
-
-function roundScore(cat, gs) { return gs.reduce((s, g) => s + (g.idx >= 0 ? POINTS[tierOf(cat, g.idx)] : 0), 0); }
-function roundEmoji(cat, gs) { return gs.map(g => EMOJI[g.idx >= 0 ? tierOf(cat, g.idx) : 0]).join(""); }
-
-/* ---------- Rendering ---------- */
-function tileHTML(cat, g, i) {
-  if (!g) return `<div class="tile" aria-label="Guess ${i + 1}, unused"></div>`;
-  if (g.idx < 0) return `<div class="tile filled miss" aria-label="Miss: ${esc(g.t)}"><span class="n">0</span><span class="sym">✕</span><span class="nm">${esc(g.t)}</span></div>`;
-  const a = cat.answers[g.idx], t = tierOf(cat, g.idx);
-  return `<div class="tile filled t${t}" aria-label="${esc(a.name)}, ${TIER_NAME[t]}, ${fmtPct(a.pct)}, ${POINTS[t]} points"><span class="n">+${POINTS[t]}</span><span class="p">${fmtPct(a.pct)}</span><span class="sym">${esc(sym(a.name))}</span><span class="nm">${esc(a.name)}</span></div>`;
-}
-const legend = `<div class="legend" aria-hidden="true">${[1,2,3,4,5].map(t => `<span><i style="background:var(--t${t})"></i>${TIER_NAME[t]} +${POINTS[t]}</span>`).join("")}</div>`;
-
-function render(feedback = "", fbClass = "") {
-  if (mode === "daily" && game.finished) return renderSummary();
-  const ci = game.rounds[game.r], cat = CATS[ci], gs = game.guesses[game.r], over = game.over[game.r];
-  const left = GUESSES - gs.length;
-  const rs = roundScore(cat, gs);
-  const eyebrowL = mode === "daily" ? `Daily #${dayNumber()} · Prompt <b>${game.r + 1}</b> of ${game.rounds.length}` : `Unlimited · Prompt <b>${unl.played + 1}</b> · ${unl.total} pts banked`;
-  const eyebrowR = `${cat.answers.length} accepted answers`;
-  let html = `<section class="card" aria-labelledby="prompt">
-    <div class="eyebrow"><span>${eyebrowL}</span><span>${eyebrowR}</span></div>
-    <h2 class="prompt" id="prompt">${esc(cat.prompt)}</h2>
-    <p class="sub">${esc(cat.sub)}</p>
-    <form class="guess" id="guess-form" autocomplete="off">
-      <input id="guess-input" name="guess" type="text" maxlength="80" placeholder="${over ? "Round over" : "Type an answer…"}" ${over ? "disabled" : ""} aria-label="Your answer" autocapitalize="off" spellcheck="false">
-      <button class="btn" type="submit" ${over ? "disabled" : ""}>Guess</button>
-    </form>
-    <div class="feedback ${fbClass}" id="feedback" aria-live="polite">${feedback || (over ? "" : `${left} guess${left === 1 ? "" : "es"} left. Go obscure.`)}</div>
-    <div class="slots">${Array.from({ length: GUESSES }, (_, i) => tileHTML(cat, gs[i], i)).join("")}</div>
-    <div class="scoreline">
-      <div class="score">${rs}<span>pts this prompt</span></div>
-      <div class="actions">${over ? nextButton() : `<button type="button" class="btn ghost" id="giveup">Reveal answers</button>`}</div>
-    </div>
-    ${legend}
-  </section>`;
-  if (over) html += revealHTML(cat, gs);
-  main.innerHTML = html;
-  const inp = document.getElementById("guess-input");
-  document.getElementById("guess-form").addEventListener("submit", e => { e.preventDefault(); submitGuess(inp.value); });
-  const gu = document.getElementById("giveup"); if (gu) gu.addEventListener("click", endRound);
-  const nx = document.getElementById("next"); if (nx) nx.addEventListener("click", nextRound);
-  if (!over) inp.focus({ preventScroll: true });
-}
-function nextButton() {
-  if (mode === "unlimited") return `<button type="button" class="btn accent" id="next">Next prompt</button>`;
-  return `<button type="button" class="btn accent" id="next">${game.r < game.rounds.length - 1 ? "Next prompt" : "See today's results"}</button>`;
-}
-function revealHTML(cat, gs) {
-  const found = new Set(gs.filter(g => g.idx >= 0).map(g => g.idx));
-  const gem = cat.answers[cat.rarest];
-  const gotGem = found.has(cat.rarest);
-  const max = Math.max(...cat.answers.map(a => a.pct));
-  const rows = cat.answers.map((a, i) => ({ a, i })).sort((x, y) => y.a.pct - x.a.pct).map(({ a, i }) => {
-    const t = tierOf(cat, i);
-    const w = Math.max(3, Math.sqrt(a.pct / max) * 100);
-    return `<div class="row${found.has(i) ? " found" : ""}"><span class="an">${esc(a.name)}</span><span class="bar" aria-hidden="true"><b style="width:${w.toFixed(1)}%;background:var(--t${t})"></b></span><span class="pc">${fmtPct(a.pct)}</span></div>`;
-  }).join("");
-  return `<section class="card reveal" aria-labelledby="reveal-h">
-    <div class="gemcall">
-      ${tileHTML(cat, { idx: cat.rarest }, 0)}
-      <div><p class="lbl">${gotGem ? "You found the rarest answer" : "The rarest answer"}</p><p class="gname">${esc(gem.name)}</p><p class="gnote">Only about ${fmtPct(gem.pct)} of players would think of it.</p></div>
-    </div>
-    <h2 id="reveal-h">Every accepted answer</h2>
-    <div>
-      <div class="chart-head"><span>Answer</span><span>Abundance</span><span>Players</span></div>
-      <div class="chart">${rows}</div>
-    </div>
-    <p class="fineprint">You found ${found.size} of ${cat.answers.length}. Bars use a square-root scale so the rare answers stay visible.</p>
-  </section>`;
-}
-
-function submitGuess(raw) {
-  const text = raw.trim();
-  const cat = CATS[game.rounds[game.r]], gs = game.guesses[game.r];
-  if (!text || game.over[game.r]) return;
-  const m = match(cat, text);
-  if (m && gs.some(g => g.idx === m.idx)) { render(`You already have ${esc(cat.answers[m.idx].name)}. That one's free, try another.`); return; }
-  gs.push({ t: text.slice(0, 40), idx: m ? m.idx : -1 });
-  let fb, cls = "";
-  if (!m) {
-    fb = `“${esc(text)}” isn't on the list.`;
-  } else {
-    const a = cat.answers[m.idx], t = tierOf(cat, m.idx);
-    const corrected = norm(text) !== norm(a.name) ? ` (read as ${esc(a.name)})` : "";
-    if (t === 5) { fb = `Rarest answer! ${esc(a.name)}, ${fmtPct(a.pct)} of players. +${POINTS[t]}`; cls = "gem"; }
-    else { fb = `${TIER_NAME[t]}${corrected}: ${fmtPct(a.pct)} of players. +${POINTS[t]}`; cls = "hit"; }
-  }
-  const done = gs.length >= GUESSES || (m && m.idx === cat.rarest);
-  if (done) { game.over[game.r] = true; if (mode === "unlimited") { unl.total += roundScore(cat, gs); } }
-  saveDaily();
-  render(fb, cls);
-  if (done) setTimeout(() => { const r = document.getElementById("reveal-h"); if (r && r.scrollIntoView && window.innerHeight < 900) r.closest(".card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }, 350);
-}
-function endRound() {
-  const cat = CATS[game.rounds[game.r]];
-  game.over[game.r] = true;
-  if (mode === "unlimited") unl.total += roundScore(cat, game.guesses[game.r]);
-  saveDaily();
-  render();
-}
-function nextRound() {
-  if (mode === "unlimited") { unl.played++; game = newUnlimitedRound(); render(); window.scrollTo({ top: 0 }); return; }
-  if (game.r < game.rounds.length - 1) { game.r++; saveDaily(); render(); window.scrollTo({ top: 0 }); return; }
-  finishDaily();
-}
-function finishDaily() {
-  game.finished = true;
-  const stats = store.get("it-stats") || { last: null, streak: 0, best: 0, played: 0, top: 0 };
-  if (stats.last !== game.date) {
-    const y = new Date(); y.setDate(y.getDate() - 1);
-    stats.streak = stats.last === dateKey(y) ? stats.streak + 1 : 1;
-    stats.best = Math.max(stats.best, stats.streak);
-    stats.played++;
-    stats.top = Math.max(stats.top || 0, dailyTotal());
-    stats.last = game.date;
-    store.set("it-stats", stats);
-  }
-  saveDaily();
-  render();
-  window.scrollTo({ top: 0 });
-}
-function dailyTotal() { return game.rounds.reduce((s, ci, r) => s + roundScore(CATS[ci], game.guesses[r]), 0); }
-
-function shareText() {
-  const lines = game.rounds.map((ci, r) => roundEmoji(CATS[ci], game.guesses[r]) + "  " + roundScore(CATS[ci], game.guesses[r]));
-  return `Imperillion #${dayNumber()} · ${dailyTotal()} pts\n${lines.join("\n")}`;
-}
-let cdTimer;
-function renderSummary() {
-  const stats = store.get("it-stats") || { streak: 1, best: 1, played: 1, top: dailyTotal() };
-  const gems = game.rounds.filter((ci, r) => game.guesses[r].some(g => g.idx === CATS[ci].rarest)).length;
-  main.innerHTML = `<section class="card summary" aria-labelledby="sum-h">
-    <div class="eyebrow"><span>Daily #${dayNumber()} · complete</span><span>${gems} of 3 rarest found</span></div>
-    <div class="big" id="sum-h">${dailyTotal()}<span>points today</span></div>
-    <div class="rounds">${game.rounds.map((ci, r) => `<div class="rline"><span class="rp">${esc(CATS[ci].prompt)}</span><span class="em" aria-hidden="true">${roundEmoji(CATS[ci], game.guesses[r])}</span><span class="rs">${roundScore(CATS[ci], game.guesses[r])}</span></div>`).join("")}</div>
-    <div class="stats">
-      <div class="stat"><b>${stats.streak}</b><span>Day streak</span></div>
-      <div class="stat"><b>${stats.best}</b><span>Best streak</span></div>
-      <div class="stat"><b>${stats.top || dailyTotal()}</b><span>Best score</span></div>
-    </div>
-    <label for="share-text" class="eyebrow"><span>Share your result</span></label>
-    <textarea class="share" id="share-text" readonly>${esc(shareText())}</textarea>
-    <div class="scoreline">
-      <div class="countdown" id="countdown"></div>
-      <div class="actions">
-        <button type="button" class="btn ghost" id="review">Review answers</button>
-        <button type="button" class="btn" id="copy">Copy result</button>
-        <button type="button" class="btn accent" id="to-unl">Play Unlimited</button>
-      </div>
-    </div>
-  </section><div id="review-box"></div>`;
-  document.getElementById("copy").addEventListener("click", e => {
-    const btn = e.currentTarget, ta = document.getElementById("share-text");
-    const ok = () => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy result", 1600); };
-    const fallback = () => { ta.focus(); ta.select(); btn.textContent = "Selected, press Copy"; };
-    try { navigator.clipboard.writeText(ta.value).then(ok, fallback); } catch { fallback(); }
-  });
-  document.getElementById("to-unl").addEventListener("click", () => setMode("unlimited"));
-  document.getElementById("review").addEventListener("click", e => {
-    e.currentTarget.disabled = true;
-    document.getElementById("review-box").innerHTML = game.rounds.map((ci, r) => `<div style="margin-top:20px">${revealHTML(CATS[ci], game.guesses[r]).replace('id="reveal-h">Every accepted answer', `id="reveal-h-${r}">${esc(CATS[ci].prompt)}`).replace('aria-labelledby="reveal-h"', `aria-labelledby="reveal-h-${r}"`)}</div>`).join("");
-  });
-  clearInterval(cdTimer);
-  const tick = () => {
-    const el = document.getElementById("countdown"); if (!el) return clearInterval(cdTimer);
-    const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0);
-    if (dateKey(n) !== game.date) { clearInterval(cdTimer); game = newDaily(); render(); return; }
-    const s = Math.floor((m - n) / 1000);
-    el.textContent = `Next daily in ${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-  };
-  tick(); cdTimer = setInterval(tick, 1000);
-}
+const BANDS = [
+  [0, 150, 1, "Fresher", "Still finding the library."],
+  [151, 260, 2, "Undergrad", "Lectures attended, mostly."],
+  [261, 380, 3, "Postgrad", "Knows which microwaves are free."],
+  [381, 520, 4, "Professor", "Office hours by appointment only."],
+  [521, Infinity, 5, "Nobel", "One in Imperillion. Frame this one."]
+];
 
 /* ---------- Hot Flask (party mode) ---------- */
 const FUSE_MIN = 10000, FUSE_MAX = 30000, FUSE_FLOOR = 8000;
@@ -1237,7 +1133,7 @@ function nextAlive(i) { const n = party.players.length; let j = i; do { j = (j +
 function partyChips() {
   return `<div class="pchips">${party.players.map((pl, i) => `<span class="pchip${i === party.holder && pl.lives > 0 ? " on" : ""}${pl.lives <= 0 ? " out" : ""}">${esc(pl.name)}<span class="lv" aria-label="${pl.lives} lives">${"●".repeat(Math.max(0, pl.lives))}${"○".repeat(Math.max(0, party.maxLives - pl.lives))}</span></span>`).join("")}</div>`;
 }
-function nextPrompt() {
+function partyNextPrompt() {
   if (!party.deck.length) { party.deck = CATS.map((_, i) => i).filter(i => i !== party.cat).sort(() => Math.random() - 0.5); }
   party.cat = party.deck.pop(); party.used = new Set(); party.prompts++;
 }
@@ -1266,7 +1162,7 @@ function renderPartySetup() {
 }
 function startParty() {
   party = { players: partyNames.map(name => ({ name, lives: partyLives })), maxLives: partyLives, holder: Math.floor(Math.random() * partyNames.length), cat: -1, used: new Set(), deck: [], prompts: 0, fuseEnd: 0, running: false, said: 0, best: null };
-  nextPrompt();
+  partyNextPrompt();
   renderPartyReady(`${esc(party.players[party.holder].name)} goes first.`);
 }
 function renderPartyReady(note, burst) {
@@ -1325,7 +1221,7 @@ function partyGuess(raw) {
   const now = Date.now();
   if (party.fuseEnd - now < FUSE_FLOOR) party.fuseEnd = now + FUSE_FLOOR;
   party.holder = nextAlive(party.holder);
-  if (party.used.size >= cat.answers.length) { nextPrompt(); msg += " Every answer used, here's a new prompt."; }
+  if (party.used.size >= cat.answers.length) { partyNextPrompt(); msg += " Every answer used, here's a new prompt."; }
   renderPartyPlay(msg, t === 5 ? "gem" : "hit");
 }
 function partyPop() {
@@ -1337,7 +1233,7 @@ function partyPop() {
   const missNote = missed.length ? `Still unsaid: ${missed.join(", ")}.` : "";
   if (alive.length <= 1) return renderPartyWin(alive[0], loser, missNote);
   if (loser.lives <= 0) party.holder = nextAlive(party.holder);
-  nextPrompt();
+  partyNextPrompt();
   renderPartyReady(`${missNote} Pass the device to ${esc(party.players[party.holder].name)}.`, loser.lives > 0 ? `Boiled over! ${esc(loser.name)} loses a life.` : `Boiled over! ${esc(loser.name)} is out.`);
 }
 function renderPartyWin(winner, loser, missNote) {
@@ -1356,40 +1252,28 @@ function renderPartyWin(winner, loser, missNote) {
   document.getElementById("psetup").addEventListener("click", renderPartySetup);
 }
 
-/* ---------- Mode + help ---------- */
-function setMode(m) {
-  mode = m;
-  ["daily", "unlimited", "party"].forEach(k => document.getElementById("mode-" + k).setAttribute("aria-pressed", m === k));
-  clearInterval(cdTimer);
-  stopParty();
-  scene.setParty(m === "party");
-  if (m === "party") { renderPartySetup(); return; }
-  game = m === "daily" ? newDaily() : newUnlimitedRound();
-  render();
-}
-document.getElementById("mode-daily").addEventListener("click", () => setMode("daily"));
-document.getElementById("mode-unlimited").addEventListener("click", () => setMode("unlimited"));
-document.getElementById("mode-party").addEventListener("click", () => setMode("party"));
-const help = document.getElementById("help");
-function openHelp() { help.hidden = false; document.getElementById("help-close").focus(); }
-function closeHelp() { help.hidden = true; store.set("it-seen-help", true); const i = document.getElementById("guess-input"); if (i && !i.disabled) i.focus(); }
-document.getElementById("help-btn").addEventListener("click", openHelp);
-document.getElementById("help-close").addEventListener("click", closeHelp);
-help.addEventListener("click", e => { if (e.target === help) closeHelp(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !help.hidden) closeHelp(); });
 
-/* ---------- Pixel campus scene: Queen's Tower over Queen's Lawn ---------- */
+/* ---------- Pixel world: South Kensington and the sky above it ---------- */
 const scene = (() => {
-  const cv = document.getElementById("scene"), ctx = cv.getContext("2d");
-  const markCv = document.getElementById("mark-cv");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
-  const TOK = ["sky-top","sky-bot","sun","sun-halo","cloud","cloud-shade","stone","stone-shade","stone-light","copper","copper-dark","copper-light","gold","bldg","bldg-dark","concrete","window","window-lit","grass","grass-2","hedge","path","tree","tree-dark","trunk","skin","brick","brick-dark","bird","ink","surface","accent","amber","muted","t1","t2","t3","t4","t5"];
-  let W = 0, H = 0, G = 0, CX = 0, pal = {}, night = false, frameN = 0, timer = null, partyLights = false;
-  let skyL = null, groundL = null, clouds = [], stars = [];
+  const cv = $("#sky"), ctx = cv.getContext("2d"), marksEl = $("#marks"), tagEl = $("#tag");
+  const MPP = 1.3; // metres per world pixel
+  const TOK = ["sky-top","sky-bot","space","soil","ruler","sun","sun-halo","cloud","cloud-shade","stone","stone-shade","stone-light","copper","copper-dark","copper-light","gold","bldg","bldg-dark","concrete","window","window-lit","grass","grass-2","hedge","path","tree","tree-dark","trunk","skin","brick","brick-dark","bird","outline","ink","surface","accent","amber","muted","danger","miss","t1","t2","t3","t4","t5"];
+  const FLAVOUR = [
+    [87, "top of Queen's Tower · 87m"], [96, "Elizabeth Tower (Big Ben) · 96m"], [111, "St Paul's Cathedral cross · 111m"],
+    [135, "top of the London Eye · 135m"], [235, "One Canada Square · 235m"], [310, "the Shard · 310m"],
+    [450, "ABOVE THE ROOFTOPS", 1], [828, "Burj Khalifa · 828m"], [1085, "Yr Wyddfa (Snowdon) · 1,085m"], [1345, "Ben Nevis · 1,345m"],
+    [1800, "CLOUD COUNTRY", 1], [2500, "altitude sickness can start around here"], [3300, "a passing plane"], [4808, "Mont Blanc · about 4,800m"],
+    [6000, "THIN AIR", 1], [8849, "Everest · 8,849m"], [9500, "the sky turns to night", 1], [11000, "airliners cruise up here"], [14000, "THE STRATOSPHERE", 1]
+  ];
+  const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]].map(r => r.map(v => v / 16));
+  const GH = 104, LAWN = 70;
+  let W = 0, H = 0, S = 3, pal = {}, night = false, R32 = [], RL = 0, img = null, u32 = null, ground = null, CX = 0, BX = 0;
+  let cam = 0, anchor = 0.8, anchorT = 0.8, anchorGround = false, bAlt = 0, bOn = true, thBase = null, party = false, climbA = null, marksOn = false;
+  let frameN = 0, lastDraw = 0, clouds = [], stars = [], parts = [], tagOn = false;
+
   const tok = n => getComputedStyle(document.documentElement).getPropertyValue("--" + n).trim();
   const hex = c => { const m = /^#([0-9a-f]{6})$/i.exec(c); const n = m ? parseInt(m[1], 16) : 0; return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
   const mk = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
-  const rngOf = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   const R = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   const disc = (c, cx, cy, r, col, test) => {
     c.fillStyle = col;
@@ -1399,179 +1283,202 @@ const scene = (() => {
       for (let dx = -hw; dx <= hw; dx++) if (test(dx, dy)) c.fillRect(cx + dx, cy + dy, 1, 1);
     }
   };
-  function sprite(c, rows, colours, ox = 0, oy = 0) {
-    rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const col = colours[row[x]]; if (col) { c.fillStyle = col; c.fillRect(ox + x, oy + y, 1, 1); } } });
-  }
+  const spr = (c, rows, colours, ox = 0, oy = 0) => rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const col = colours[row[x]]; if (col) { c.fillStyle = col; c.fillRect(ox + x, oy + y, 1, 1); } } });
+
+  /* DOM marker pools */
+  const flEls = FLAVOUR.map(([, text, zone], i) => { const d = document.createElement("div"); d.className = "fl " + (i % 2 ? "r" : "l") + (zone ? " zone" : ""); d.innerHTML = `<span>${esc(text)}</span>`; d.hidden = true; marksEl.appendChild(d); return d; });
+  const thEls = [1, 2, 3, 4, 5].map(i => { const d = document.createElement("div"); d.className = "th"; d.style.setProperty("--tc", `var(${TIERS[i].color})`); d.innerHTML = `<span>▲ ${TIERS[i].name} · ${TIERS[i].pts}</span>`; d.hidden = true; marksEl.appendChild(d); return d; });
+  const rlEls = Array.from({ length: 14 }, () => { const d = document.createElement("div"); d.className = "rl"; d.hidden = true; marksEl.appendChild(d); return d; });
+  const youEl = document.createElement("div"); youEl.className = "you"; youEl.textContent = "you"; marksEl.appendChild(youEl);
 
   function build() {
     const r = cv.getBoundingClientRect();
     if (!r.width || !r.height) return false;
-    const s = Math.max(2, Math.floor(r.height / 92));
-    W = Math.ceil(r.width / s); H = Math.ceil(r.height / s);
+    S = r.width < 520 ? 2 : 3;
+    W = Math.ceil(r.width / S); H = Math.ceil(r.height / S);
     cv.width = W; cv.height = H;
+    img = ctx.createImageData(W, H); u32 = new Uint32Array(img.data.buffer);
     TOK.forEach(n => pal[n] = tok(n));
     night = tok("is-night") === "1";
-    G = H - 26;                                   // top edge of Queen's Lawn
-    const narrow = W < 220;
-    CX = Math.round(W * (narrow ? 0.85 : 0.64)); // Queen's Tower centre line
+    const bot = hex(pal["sky-bot"]), top = hex(pal["sky-top"]), sp = hex(pal.space);
+    const mix = (a, b, t) => [0, 1, 2].map(k => Math.round(a[k] + (b[k] - a[k]) * t));
+    const ramp = [];
+    for (let i = 0; i <= 14; i++) ramp.push(mix(bot, top, i / 14));
+    for (let i = 1; i <= 26; i++) ramp.push(mix(top, sp, i / 26));
+    R32 = ramp.map(([r2, g, b]) => (255 << 24 | b << 16 | g << 8 | r2) >>> 0); RL = R32.length;
+    CX = Math.round(W * (W < 220 ? 0.8 : 0.68));
+    BX = Math.round(W * (W < 220 ? 0.22 : 0.3));
     const rnd = rngOf(1907);
-
-    /* sky: dithered bands */
-    skyL = mk(W, H); const sc = skyL.getContext("2d");
-    const img = sc.createImageData(W, H), a = hex(pal["sky-top"]), b = hex(pal["sky-bot"]), bands = 9;
-    const bayer = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
-    for (let y = 0; y < H; y++) {
-      const v = Math.min(1, y / (G - 4)) * (bands - 1), lo = Math.floor(v), fr = v - lo;
-      for (let x = 0; x < W; x++) {
-        const k = Math.min(bands - 1, lo + (fr > bayer[y & 3][x & 3] / 16 ? 1 : 0)) / (bands - 1), i = (y * W + x) * 4;
-        img.data[i] = a[0] + (b[0] - a[0]) * k; img.data[i + 1] = a[1] + (b[1] - a[1]) * k; img.data[i + 2] = a[2] + (b[2] - a[2]) * k; img.data[i + 3] = 255;
-      }
-    }
-    sc.putImageData(img, 0, 0);
-    const sx = Math.round(W * (narrow ? 0.5 : 0.86)), sy = narrow ? G - 30 : 20; // on phones the sun sets between the blocks
-    if (!night) {
-      disc(sc, sx, sy, 13, pal["sun-halo"], (dx, dy) => (dx + dy) % 2 === 0);
-      disc(sc, sx, sy, 10, pal["sun-halo"]);
-      disc(sc, sx, sy, 8, pal.sun);
-    } else {
-      stars = [];
-      for (let i = 0; i < Math.round(W * H / 220); i++) stars.push([Math.floor(rnd() * W), Math.floor(rnd() * (G - 24)), rnd()]);
-      stars.forEach(([x, y, k]) => R(sc, x, y, 1, 1, k > 0.7 ? pal["stone-light"] : pal["sun-halo"]));
-      disc(sc, sx, sy, 10, pal["sun-halo"], (dx, dy) => (dx + dy) % 2 === 0);
-      disc(sc, sx, sy, 7, pal.sun, (dx, dy) => (dx - 3) * (dx - 3) + (dy + 2) * (dy + 2) > 30);
-    }
     clouds = [];
-    const nc = Math.max(3, Math.round(W / 70));
-    for (let i = 0; i < nc; i++) clouds.push({ x: rnd() * W, y: 6 + Math.floor(rnd() * Math.max(8, G - 46)), w: 16 + Math.floor(rnd() * 22), v: 0.12 + rnd() * 0.22 });
+    for (let i = 0; i < 70; i++) {
+      const band = rnd();
+      const alt = band < 0.15 ? 140 + rnd() * 500 : band < 0.6 ? 1500 + rnd() * 2200 : 600 + rnd() * 9000;
+      clouds.push({ alt, x: rnd() * (W + 60), w: 14 + Math.floor(rnd() * 26), v: 0.04 + rnd() * 0.12 });
+    }
+    stars = Array.from({ length: Math.round(W * H / 160) }, () => ({ x: Math.floor(rnd() * W), y: Math.floor(rnd() * H * 2), k: rnd() * 0.95, t: Math.floor(rnd() * 40) }));
 
-    /* ground layer: skyline, tower, lawn */
-    groundL = mk(W, H); const g = groundL.getContext("2d");
-    const lit = () => night && rnd() > 0.45 ? pal["window-lit"] : pal.window;
-
-    // far skyline: stucco terraces and blocks of South Ken
+    /* ground: skyline, Queen's Tower, Queen's Lawn */
+    ground = mk(W, GH); const g = ground.getContext("2d");
+    const G = LAWN, lit = () => night && rnd() > 0.45 ? pal["window-lit"] : pal.window;
     for (let x = -4; x < W;) {
       const w = 10 + Math.floor(rnd() * 18), h = 12 + Math.floor(rnd() * 14);
-      R(g, x, G - h, w, h, pal.bldg);
-      R(g, x + w - 2, G - h, 2, h, pal["bldg-dark"]);
+      R(g, x, G - h, w, h, pal.bldg); R(g, x + w - 2, G - h, 2, h, pal["bldg-dark"]);
       for (let wy = G - h + 3; wy < G - 3; wy += 4) for (let wx = x + 2; wx < x + w - 3; wx += 3) R(g, wx, wy, 1, 2, lit());
       x += w + Math.floor(rnd() * 3);
     }
-    // a red-brick rotunda with a glass crown on the far left (Albertopolis)
-    const ax = Math.round(W * 0.13), ay = G - 12;
+    const ax = Math.round(W * 0.12), ay = G - 12;
     if (ax + 18 < CX - 40) {
-      disc(g, ax, ay, 15, pal.brick, (dx, dy) => dy <= 0);
-      R(g, ax - 15, ay, 31, 12, pal.brick);
+      disc(g, ax, ay, 15, pal.brick, (dx, dy) => dy <= 0); R(g, ax - 15, ay, 31, 12, pal.brick);
       for (let wx = ax - 13; wx < ax + 14; wx += 4) R(g, wx, ay + 3, 2, 4, night ? pal["window-lit"] : pal["brick-dark"]);
-      R(g, ax - 15, ay + 1, 31, 1, pal["stone-light"]);
-      disc(g, ax, ay - 14, 5, pal["copper-light"], (dx, dy) => dy <= 0);
+      R(g, ax - 15, ay + 1, 31, 1, pal["stone-light"]); disc(g, ax, ay - 14, 5, pal["copper-light"], (dx, dy) => dy <= 0);
     }
-    // the Library-ish slab, left of the tower
     const lx0 = Math.max(0, CX - 64), lx1 = CX - 13, lh = 26;
-    R(g, lx0, G - lh, lx1 - lx0, lh, pal.concrete);
-    R(g, lx0, G - lh, lx1 - lx0, 2, pal["stone-shade"]);
-    for (let y = G - lh + 4; y < G - 2; y += 5) {
-      R(g, lx0 + 2, y, lx1 - lx0 - 4, 2, pal.window);
-      if (night) for (let x = lx0 + 2; x < lx1 - 2; x += 4) if (rnd() > 0.5) R(g, x, y, 3, 2, pal["window-lit"]);
-    }
-    // the Sherfield-ish block, right of the tower
+    R(g, lx0, G - lh, lx1 - lx0, lh, pal.concrete); R(g, lx0, G - lh, lx1 - lx0, 2, pal["stone-shade"]);
+    for (let y = G - lh + 4; y < G - 2; y += 5) { R(g, lx0 + 2, y, lx1 - lx0 - 4, 2, pal.window); if (night) for (let x = lx0 + 2; x < lx1 - 2; x += 4) if (rnd() > 0.5) R(g, x, y, 3, 2, pal["window-lit"]); }
     const rx0 = CX + 13, rx1 = Math.min(W, CX + 70), rh = 32;
-    R(g, rx0, G - rh, rx1 - rx0, rh, pal.bldg);
-    R(g, rx0, G - rh, rx1 - rx0, 2, pal["bldg-dark"]);
+    R(g, rx0, G - rh, rx1 - rx0, rh, pal.bldg); R(g, rx0, G - rh, rx1 - rx0, 2, pal["bldg-dark"]);
     for (let x = rx0 + 3; x < rx1 - 2; x += 4) for (let y = G - rh + 5; y < G - 3; y += 6) R(g, x, y, 2, 4, lit());
     for (let x = rx0 + 1; x < rx1; x += 8) R(g, x, G - rh + 2, 1, rh - 2, pal["bldg-dark"]);
-
-    // Queen's Tower
-    const top = 4, cx = CX, stone = pal.stone, shade = pal["stone-shade"], hi = pal["stone-light"];
-    const shaftTop = top + 30, baseTop = G - 7;
-    R(g, cx, top - 1, 1, 3, pal.gold);                         // finial
-    R(g, cx - 1, top + 2, 3, 4, pal.copper); R(g, cx, top + 3, 1, 2, pal["copper-dark"]);   // lantern
-    [3, 5, 7, 9, 9, 11, 11, 11].forEach((w, i) => {           // copper dome
-      const y = top + 6 + i, x = cx - (w >> 1);
-      R(g, x, y, w, 1, pal.copper); R(g, x, y, 1, 1, pal["copper-light"]); R(g, x + w - 2, y, 2, 1, pal["copper-dark"]);
-    });
-    R(g, cx - 6, top + 14, 13, 2, stone); R(g, cx - 6, top + 15, 13, 1, shade); // drum
-    [-1, 1].forEach(side => {                                  // corner turrets
-      const tx = cx + side * 7 - 1;
-      R(g, tx + 1, top + 10, 1, 1, pal["copper-light"]); R(g, tx, top + 11, 3, 2, pal.copper);
-      R(g, tx, top + 13, 3, 16, stone); R(g, tx + 2, top + 13, 1, 16, shade);
-      R(g, tx + 1, top + 16, 1, 3, pal["window"]);
-    });
-    R(g, cx - 6, top + 16, 13, 13, stone); R(g, cx + 4, top + 16, 3, 13, shade); R(g, cx - 6, top + 16, 1, 13, hi); // belfry
-    [cx - 4, cx + 1].forEach(x => { R(g, x, top + 19, 3, 7, night ? "#141b2f" : pal.window); R(g, x, top + 19, 1, 1, stone); R(g, x + 2, top + 19, 1, 1, stone); });
-    R(g, cx - 8, top + 29, 17, 2, shade); R(g, cx - 8, top + 29, 17, 1, hi);  // cornice
-    R(g, cx - 5, shaftTop, 11, baseTop - shaftTop, stone);   // shaft
-    R(g, cx + 3, shaftTop, 3, baseTop - shaftTop, shade);
-    R(g, cx - 5, shaftTop, 1, baseTop - shaftTop, hi);
-    for (let y = shaftTop + 5; y < baseTop - 4; y += 10) {
-      R(g, cx - 6, y, 13, 1, shade);                           // string course
-      R(g, cx - 1, y + 3, 2, 4, night ? pal["window-lit"] : pal.window);
-    }
+    const top0 = 4, cx = CX, stone = pal.stone, shade = pal["stone-shade"], hi = pal["stone-light"], dark = night ? "#141b2f" : pal.window;
+    const shaftTop = top0 + 30, baseTop = G - 7;
+    R(g, cx, top0 - 1, 1, 3, pal.gold);
+    R(g, cx - 1, top0 + 2, 3, 4, pal.copper); R(g, cx, top0 + 3, 1, 2, pal["copper-dark"]);
+    [3, 5, 7, 9, 9, 11, 11, 11].forEach((w, i) => { const y = top0 + 6 + i, x = cx - (w >> 1); R(g, x, y, w, 1, pal.copper); R(g, x, y, 1, 1, pal["copper-light"]); R(g, x + w - 2, y, 2, 1, pal["copper-dark"]); });
+    R(g, cx - 6, top0 + 14, 13, 2, stone); R(g, cx - 6, top0 + 15, 13, 1, shade);
+    [-1, 1].forEach(side => { const tx = cx + side * 7 - 1; R(g, tx + 1, top0 + 10, 1, 1, pal["copper-light"]); R(g, tx, top0 + 11, 3, 2, pal.copper); R(g, tx, top0 + 13, 3, 16, stone); R(g, tx + 2, top0 + 13, 1, 16, shade); R(g, tx + 1, top0 + 16, 1, 3, pal.window); });
+    R(g, cx - 6, top0 + 16, 13, 13, stone); R(g, cx + 4, top0 + 16, 3, 13, shade); R(g, cx - 6, top0 + 16, 1, 13, hi);
+    [cx - 4, cx + 1].forEach(x => { R(g, x, top0 + 19, 3, 7, dark); R(g, x, top0 + 19, 1, 1, stone); R(g, x + 2, top0 + 19, 1, 1, stone); });
+    R(g, cx - 8, top0 + 29, 17, 2, shade); R(g, cx - 8, top0 + 29, 17, 1, hi);
+    R(g, cx - 5, shaftTop, 11, baseTop - shaftTop, stone); R(g, cx + 3, shaftTop, 3, baseTop - shaftTop, shade); R(g, cx - 5, shaftTop, 1, baseTop - shaftTop, hi);
+    for (let y = shaftTop + 5; y < baseTop - 4; y += 10) { R(g, cx - 6, y, 13, 1, shade); R(g, cx - 1, y + 3, 2, 4, night ? pal["window-lit"] : pal.window); }
     R(g, cx - 8, baseTop, 17, 7, stone); R(g, cx + 5, baseTop, 4, 7, shade); R(g, cx - 8, baseTop, 17, 1, hi);
-    R(g, cx - 2, baseTop + 2, 4, 5, night ? "#141b2f" : pal.bird); R(g, cx - 1, baseTop + 1, 2, 1, night ? "#141b2f" : pal.bird); // arch
-    [cx - 12, cx + 10].forEach(x => { R(g, x, G - 4, 3, 4, shade); R(g, x, G - 6, 3, 2, stone); R(g, x + 2, G - 7, 1, 1, stone); }); // lions on plinths
-
-    // Queen's Lawn with mowing stripes and a path to the tower
-    for (let y = G; y < H; y++) for (let x = 0; x < W; x++) {
+    R(g, cx - 2, baseTop + 2, 4, 5, night ? "#141b2f" : pal.bird); R(g, cx - 1, baseTop + 1, 2, 1, night ? "#141b2f" : pal.bird);
+    [cx - 12, cx + 10].forEach(x => { R(g, x, G - 4, 3, 4, shade); R(g, x, G - 6, 3, 2, stone); R(g, x + 2, G - 7, 1, 1, stone); });
+    for (let y = G; y < GH; y++) for (let x = 0; x < W; x++) {
       const d = y - G, onPath = Math.abs(x - cx) <= 2 + d * 0.9;
-      g.fillStyle = onPath ? pal.path : (((x + d * 2) >> 3) & 1 ? pal.grass : pal["grass-2"]);
-      g.fillRect(x, y, 1, 1);
+      g.fillStyle = onPath ? pal.path : (((x + d * 2) >> 3) & 1 ? pal.grass : pal["grass-2"]); g.fillRect(x, y, 1, 1);
     }
     R(g, 0, G, W, 1, pal.hedge);
     for (let x = 0; x < W; x += 2) if (Math.abs(x - cx) > 3) R(g, x, G - 1, 1, 1, pal.hedge);
-    // trees
-    [cx - 74, cx - 30, cx + 28, cx + 84, 10, W - 12].filter((x, i, arr) => x > 4 && x < W - 4 && arr.indexOf(x) === i).forEach(x => {
-      const y = G - 2;
-      R(g, x, y, 2, 6, pal.trunk);
-      disc(g, x + 1, y - 6, 7, pal.tree);
-      disc(g, x + 1, y - 6, 7, pal["tree-dark"], (dx, dy) => dx + dy > 4);
-      R(g, x - 2, y - 10, 2, 1, pal["copper-light"]);
+    [cx - 74, cx - 30, cx + 28, cx + 84, 10, W - 12].filter((x, i, a) => x > 4 && x < W - 4 && a.indexOf(x) === i && Math.abs(x - BX) > 8).forEach(x => {
+      const y = G - 2; R(g, x, y, 2, 6, pal.trunk); disc(g, x + 1, y - 6, 7, pal.tree); disc(g, x + 1, y - 6, 7, pal["tree-dark"], (dx, dy) => dx + dy > 4); R(g, x - 2, y - 10, 2, 1, pal["copper-light"]);
     });
-    // students sitting on the lawn
     const shirts = [pal.t2, pal.t3, pal.t4, pal.accent, pal.amber, pal.t5];
-    for (let i = 0; i < Math.round(W / 26); i++) {
-      const x = Math.floor(rnd() * (W - 4)), y = G + 4 + Math.floor(rnd() * (H - G - 9));
-      if (Math.abs(x - cx) < 6 + (y - G)) continue;
-      R(g, x, y, 1, 1, pal.skin); R(g, x, y + 1, 2, 2, shirts[i % shirts.length]);
-      if (rnd() > 0.6) R(g, x + 2, y + 2, 2, 1, pal["stone-light"]);       // a notebook
+    for (let i = 0; i < Math.round(W / 22); i++) {
+      const x = Math.floor(rnd() * (W - 4)), y = G + 4 + Math.floor(rnd() * (GH - G - 9));
+      if (Math.abs(x - cx) < 6 + (y - G) || Math.abs(x - BX) < 7) continue;
+      R(g, x, y, 1, 1, pal.skin); R(g, x, y + 1, 2, 2, shirts[i % shirts.length]); if (rnd() > 0.6) R(g, x + 2, y + 2, 2, 1, pal["stone-light"]);
     }
-    drawMark();
+    const m = $("#mark-cv");
+    if (m) { const mc = m.getContext("2d"); mc.clearRect(0, 0, 11, 15); spr(mc, [".....Y.....", "....CCC....", "...CCCCC...", "...CCCCC...", ".C.SSSSS.C.", ".S.SdSdS.S.", ".SSSSSSSSS.", "..SSdSdSS..", "..SSSSSSS..", "...SSdSS...", "...SSSSS...", "...SSdSS...", "...SSSSS...", "..SSSSSSS..", "GGGGGGGGGGG"], { Y: pal.gold, C: pal.copper, S: pal.stone, d: pal.window, G: pal.grass }); }
+    document.querySelectorAll("canvas[data-sprite]").forEach(c => sprite(c, c.dataset.sprite, c.dataset.color));
     return true;
   }
 
-  function drawMark() {
-    if (!markCv) return;
-    const m = markCv.getContext("2d"); m.clearRect(0, 0, 11, 15);
-    sprite(m, [
-      ".....Y.....",
-      "....CCC....",
-      "...CCCCC...",
-      "...CCCCC...",
-      ".C.SSSSS.C.",
-      ".S.SdSdS.S.",
-      ".SSSSSSSSS.",
-      "..SSdSdSS..",
-      "..SSSSSSS..",
-      "...SSdSS...",
-      "...SSSSS...",
-      "...SSdSS...",
-      "...SSSSS...",
-      "..SSSSSSS..",
-      "GGGGGGGGGGG"
-    ], { Y: pal.gold, C: pal.copper, S: pal.stone, d: pal.window, G: pal.grass });
+  function cloud(x, y, w) {
+    R(ctx, x, y + 3, w, 4, pal.cloud); R(ctx, x + 3, y + 1, w - 8, 2, pal.cloud); R(ctx, x + 6, y - 1, Math.round(w * 0.4), 2, pal.cloud);
+    R(ctx, x + 1, y + 7, w - 2, 1, pal["cloud-shade"]); R(ctx, x + w - 4, y + 4, 3, 3, pal["cloud-shade"]);
+  }
+  const BALLOON = ["..kkkkk..", ".kwwwwwk.", "kwhwwwwsk", "kwwwwwwsk", "kwwwwwwsk", ".kwwwwsk.", "..kwwsk..", "...kkk...", "....k....", "....k....", "....k....", "...ppp...", "...ppp..."];
+
+  function draw() {
+    if (!W) return;
+    const AY = anchor * H, sy = a => AY - (a - cam) / MPP;
+    for (let y = 0; y < H; y++) {
+      const alt = cam + (AY - y) * MPP, pa = Math.max(0, alt);
+      let v = pa < 1400 ? pa / 1400 * 14 : 14 + Math.min(1, (pa - 1400) / 8000) * (RL - 15);
+      v += (1 - y / H) * 6 * Math.max(0, 1 - pa / 4000);
+      v = Math.min(RL - 1.001, Math.max(0, v));
+      const lo = v | 0, fr = v - lo, b = BAYER[y & 3], row = y * W, c0 = R32[lo], c1 = R32[lo + 1];
+      for (let x = 0; x < W; x++) u32[row + x] = fr > b[x & 3] ? c1 : c0;
+    }
+    ctx.putImageData(img, 0, 0);
+    for (const s of stars) {
+      const y = Math.floor((s.y + cam / MPP * 0.12) % (H * 2)); if (y >= H) continue;
+      const alt = cam + (AY - y) * MPP, vis = night ? 1 : Math.max(0, Math.min(1, (alt - 5000) / 4000));
+      if (vis <= s.k) continue;
+      R(ctx, s.x, y, 1, 1, pal["stone-light"]);
+      if ((frameN + s.t) % 40 === 0) { R(ctx, s.x - 1, y, 3, 1, pal["stone-light"]); R(ctx, s.x, y - 1, 1, 3, pal["stone-light"]); }
+    }
+    const sx = Math.round(W * (W < 220 ? 0.5 : 0.86)), syy = W < 220 ? Math.round(H * 0.42) : 26;
+    if (!night) { disc(ctx, sx, syy, 13, pal["sun-halo"], (dx, dy) => (dx + dy) % 2 === 0); disc(ctx, sx, syy, 10, pal["sun-halo"]); disc(ctx, sx, syy, 8, pal.sun); }
+    else { disc(ctx, sx, syy, 10, pal["sun-halo"], (dx, dy) => (dx + dy) % 2 === 0); disc(ctx, sx, syy, 7, pal.sun, (dx, dy) => (dx - 3) * (dx - 3) + (dy + 2) * (dy + 2) > 30); }
+    for (const c of clouds) {
+      const y = Math.round(sy(c.alt)); if (y < -12 || y > H + 4) continue;
+      cloud(Math.round(((c.x + frameN * c.v) % (W + c.w + 40)) - c.w - 20), y, c.w);
+    }
+    const py = Math.round(sy(3300));
+    if (py > -6 && py < H + 6) { const px = Math.round((frameN * 0.6) % (W + 40)) - 20; R(ctx, px, py, 12, 2, pal["stone-light"]); R(ctx, px + 9, py - 3, 2, 3, pal["stone-light"]); R(ctx, px + 4, py + 2, 4, 1, pal.muted); R(ctx, px + 11, py, 1, 1, pal.danger); }
+    if (!night) for (let i = 0; i < 3; i++) {
+      const by = Math.round(sy(50 + i * 38) + Math.sin(frameN / 9 + i) * 2); if (by < -4 || by > H) continue;
+      const bx = Math.round((frameN * (0.5 + i * 0.2) + i * 61) % (W + 40)) - 20, up = (frameN + i) % 4 < 2;
+      R(ctx, bx, by + (up ? 0 : 1), 1, 1, pal.bird); R(ctx, bx + 1, by + 1, 1, 1, pal.bird); R(ctx, bx + 2, by + (up ? 0 : 1), 1, 1, pal.bird);
+    }
+    const gy = Math.round(sy(0)) - LAWN;
+    if (gy < H) {
+      ctx.drawImage(ground, 0, gy);
+      if (gy + GH < H) R(ctx, 0, gy + GH, W, H - gy - GH, pal.soil);
+      const wx = Math.round((frameN * 0.35) % (W + 10)) - 5, wy = gy + GH - 9, step = frameN % 4 < 2;
+      R(ctx, wx, wy, 1, 1, pal.skin); R(ctx, wx, wy + 1, 2, 2, pal.accent); R(ctx, wx + (step ? 0 : 1), wy + 3, 1, 1, pal.outline);
+      if (party) {
+        const x0 = Math.max(2, CX - 72), x1 = Math.min(W - 2, CX + 82), yb = gy + LAWN - 14, mid = (x0 + x1) / 2, half = (x1 - x0) / 2;
+        const bulbs = [pal.t2, pal.t3, pal.t4, pal.t5, pal.accent, pal.amber];
+        for (let x = x0; x <= x1; x++) {
+          if (Math.abs(x - CX) < 9) continue;
+          const y = Math.round(yb + 6 * (1 - ((x - mid) / half) ** 2)); R(ctx, x, y, 1, 1, pal.outline);
+          if ((x - x0) % 5 === 0) R(ctx, x, y + 1, 1, 2, bulbs[(Math.floor((x - x0) / 5) + Math.floor(frameN / 3)) % bulbs.length]);
+        }
+      }
+    }
+    const by = Math.round(sy(bAlt));
+    if (bOn) {
+      const bob = climbA ? 0 : ((frameN >> 2) % 2);
+      spr(ctx, BALLOON, { k: pal.outline, w: pal["stone-light"], h: "#FFFFFF", s: pal["cloud-shade"], p: pal.danger }, BX - 4, by - 12 - bob);
+      if (climbA && !reduceMotion.matches) parts.push({ x: BX + (Math.random() * 6 - 3), y: by + 2, vx: Math.random() * 0.4 - 0.2, vy: 0.8 + Math.random(), life: 16, c: pal["cloud-shade"] });
+    }
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i]; p.x += p.vx; p.y += p.vy; if (p.g) p.vy += p.g; p.life--;
+      if (p.life <= 0) { parts.splice(i, 1); continue; }
+      R(ctx, p.x, p.y, p.s || 1, p.s || 1, p.c);
+    }
+    if (marksOn) {
+      R(ctx, W - 2, 0, 1, H, pal.ruler);
+      const aTop = cam + AY * MPP, aBot = cam - (H - AY) * MPP;
+      for (let a = Math.ceil(aBot / 25) * 25; a <= aTop; a += 25) { if (a < 0) continue; const y = Math.round(sy(a)), len = a % 100 === 0 ? 5 : 2; R(ctx, W - 2 - len, y, len, 1, pal.ruler); }
+    }
+    /* DOM layer */
+    if (marksOn) {
+      let lastY = 1e9; FLAVOUR.forEach(([a], i) => { const y = sy(a) * S, el = flEls[i]; const vis = y > -20 && y < H * S + 20 && lastY - y > 24; el.hidden = !vis; if (vis) { lastY = y; el.style.transform = `translateY(${y.toFixed(1)}px)`; } });
+      thEls.forEach((el, i) => { if (thBase == null) { el.hidden = true; return; } const y = sy(thBase + TIERS[i + 1].pts * 10) * S; const vis = y > -20 && y < H * S + 20; el.hidden = !vis; if (vis) el.style.transform = `translateY(${y.toFixed(1)}px)`; });
+      const step = 100, aTop = cam + AY * MPP, aBot = Math.max(0, cam - (H - AY) * MPP);
+      let k = 0;
+      for (let a = Math.ceil(aBot / step) * step; a <= aTop && k < rlEls.length; a += step) { if (bOn && Math.abs(sy(a) - by) * S < 16) continue; const el = rlEls[k++]; el.hidden = false; el.textContent = a.toLocaleString("en-GB") + "m"; el.style.transform = `translateY(${(sy(a) * S - 5).toFixed(1)}px)`; }
+      for (; k < rlEls.length; k++) rlEls[k].hidden = true;
+      youEl.hidden = !bOn; youEl.style.transform = `translateY(${(by * S - 5).toFixed(1)}px)`;
+    }
+    if (tagOn) tagEl.style.transform = `translate(${(BX * S + 26).toFixed(0)}px, ${((by - 15) * S).toFixed(0)}px)`;
   }
 
-  const FLASK_ROWS = [
-    "................", "................", "................",
-    ".....OOOOOO.....", ".....OggggO.....", "......OggO......", "......OggO......", "......OggO......",
-    ".....OggggO.....", "....OggggggO....", "...OggggggggO...", "...OLLLLLLLLO...",
-    "..OLLLLLLLLLLO..", "..OLLLLLLLLLLO..", ".OLLLLLLLLLLLLO.", ".OLLLLLLLLLLLLO.",
-    "OLLLLLLLLLLLLLLO", "OLLLLLLLLLLLLLLO", ".OOOOOOOOOOOOOO.", "................"
-  ];
+  function loop(now) {
+    requestAnimationFrame(loop);
+    if (now - lastDraw < 33) return;
+    lastDraw = now;
+    frameN = reduceMotion.matches ? 0 : Math.floor(now / 120);
+    anchor += (anchorT - anchor) * 0.12;
+    if (climbA) {
+      const t = Math.min(1, (now - climbA.t0) / climbA.d), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      bAlt = climbA.a0 + (climbA.a1 - climbA.a0) * e; cam = bAlt; climbA.tick(bAlt);
+      if (t >= 1) { const done = climbA.done; climbA = null; done(); }
+    } else cam += (bAlt - cam) * 0.15;
+    draw();
+  }
+
+  const FLASK_ROWS = ["................", "................", "................", ".....OOOOOO.....", ".....OggggO.....", "......OggO......", "......OggO......", "......OggO......", ".....OggggO.....", "....OggggggO....", "...OggggggggO...", "...OLLLLLLLLO...", "..OLLLLLLLLLLO..", "..OLLLLLLLLLLO..", ".OLLLLLLLLLLLLO.", ".OLLLLLLLLLLLLO.", "OLLLLLLLLLLLLLLO", "OLLLLLLLLLLLLLLO", ".OOOOOOOOOOOOOO.", "................"];
   function flasks() {
     document.querySelectorAll("canvas.flask-cv").forEach(c => {
-      const wrap = c.parentElement, burst = wrap.classList.contains("burst"), idle = wrap.classList.contains("idle") || reduce.matches;
+      const wrap = c.parentElement, burst = wrap.classList.contains("burst"), idle = wrap.classList.contains("idle") || reduceMotion.matches;
       const f = c.getContext("2d"); f.clearRect(0, 0, 16, 20);
-      sprite(f, FLASK_ROWS, { O: pal.ink, g: pal.surface, L: burst ? pal.t4 : pal.accent });
+      spr(f, FLASK_ROWS, { O: pal.ink, g: pal.surface, L: burst ? pal.t4 : pal.accent });
       R(f, 2, 14, 1, 2, pal["stone-light"]); R(f, 4, 11, 1, 1, pal["stone-light"]);
       if (burst) { [[3, 1], [12, 0], [7, 2], [10, 2], [5, 0]].forEach(([x, y]) => R(f, x, y, 1, 1, pal.t4)); return; }
       if (idle) { R(f, 6, 15, 1, 1, pal.surface); R(f, 10, 13, 1, 1, pal.surface); return; }
@@ -1579,57 +1486,324 @@ const scene = (() => {
       const s = frameN % 6; R(f, 7 + (s > 2 ? 1 : 0), 2 - (s % 3), 1, 1, pal.muted);
     });
   }
+  setInterval(() => { if (document.querySelector("canvas.flask-cv")) flasks(); }, 140);
 
-  function cloud(c, x, y, w) {
-    x = Math.round(x);
-    R(c, x, y + 3, w, 4, pal.cloud);
-    R(c, x + 3, y + 1, w - 8, 2, pal.cloud);
-    R(c, x + 6, y - 1, Math.round(w * 0.4), 2, pal.cloud);
-    R(c, x + 1, y + 7, w - 2, 1, pal["cloud-shade"]);
-    R(c, x + w - 4, y + 4, 3, 3, pal["cloud-shade"]);
+  const SPRITES = {
+    pigeon: ["............", "............", ".......kk...", "......kggk..", "......kgwko.", "..kkkkkggk..", ".kgggggggk..", "kgggpgggk...", ".kgggggk....", "..kkkkk.....", "...o..o.....", "............"],
+    kite: [".....kk.....", "....kcck....", "...kccwck...", "..kcccwcck..", ".kccccwccck.", "..kcccwcck..", "...kccwck...", "....kcck....", ".....kk.....", "......k.....", ".....c.k....", "......c....."],
+    plane: ["............", "..........kk", "........kkwk", "......kkwwk.", "....kkwwwwk.", "..kkwwwwwk..", "kkwwwwsswk..", "..kkwwssk...", "....kkssk...", "......kk....", "............", "............"],
+    cap: ["............", ".....kk.....", "...kkbbkk...", ".kkbbbbbbkk.", "kbbbbbbbbbbk", ".kkbbbbbbkky", "...kbbbbk..y", "...kbbbbk..y", "...kkkkkk.yy", "..........yy", "............", "............"],
+    medal: ["..cc....cc..", "...cc..cc...", "....cccc....", ".....cc.....", "....kkkk....", "...kyyyyk...", "..kyywyyyk..", "..kyyyyyyk..", "..kyyyyyyk..", "...kyyyyk...", "....kkkk....", "............"],
+    pop: ["............", "....kkkk....", "...kwwwwk...", "..kwwwwwwk..", "..kwwwwwwk..", "...kwwwwk...", "....kwwk....", ".....kk.....", "......k.....", ".....k......", "......k.....", "....kkk....."]
+  };
+  function sprite(c, key, colorVar) {
+    const f = c.getContext("2d"); f.clearRect(0, 0, c.width, c.height);
+    const tc = tok(colorVar.replace(/^--/, "")) || pal.ink;
+    spr(f, SPRITES[key] || SPRITES.pop, { k: pal.outline === "" ? "#141B2F" : "#0A0F1C", g: "#A9B4C6", w: "#F4F7FC", p: "#8C7BB8", o: pal.amber, c: tc, s: "#B7C4D6", b: "#55617A", y: pal.gold || "#E8B83A" });
   }
 
-  function frame() {
-    if (!skyL) return;
-    ctx.drawImage(skyL, 0, 0);
-    if (night) for (let i = 0; i < 4 && stars.length; i++) { const s = stars[(frameN * 7 + i * 13) % stars.length]; R(ctx, s[0] - 1, s[1], 3, 1, pal["stone-light"]); R(ctx, s[0], s[1] - 1, 1, 3, pal["stone-light"]); }
-    clouds.forEach(cl => cloud(ctx, ((cl.x + frameN * cl.v) % (W + cl.w + 20)) - cl.w - 10, cl.y, cl.w));
-    if (!night) for (let i = 0; i < 2; i++) {
-      const bx = ((frameN * 0.7 + i * 23) % (W + 40)) - 20, by = 22 + i * 6 + Math.round(Math.sin(frameN / 9 + i) * 2), up = (frameN + i) % 4 < 2;
-      R(ctx, bx, by + (up ? 0 : 1), 1, 1, pal.bird); R(ctx, bx + 1, by + 1, 1, 1, pal.bird); R(ctx, bx + 2, by + (up ? 0 : 1), 1, 1, pal.bird);
-    }
-    ctx.drawImage(groundL, 0, 0);
-    // a student walking across the lawn
-    const wx = Math.round((frameN * 0.35) % (W + 10)) - 5, wy = H - 7, step = frameN % 4 < 2;
-    R(ctx, wx, wy, 1, 1, pal.skin); R(ctx, wx, wy + 1, 2, 2, pal.accent); R(ctx, wx + (step ? 0 : 1), wy + 3, 1, 1, pal.ink);
-    if (partyLights) {
-      const x0 = Math.max(2, CX - 72), x1 = Math.min(W - 2, CX + 82), yb = G - 14, mid = (x0 + x1) / 2, half = (x1 - x0) / 2;
-      const bulbs = [pal.t2, pal.t3, pal.t4, pal.t5, pal.accent, pal.amber];
-      for (let x = x0; x <= x1; x++) {
-        if (Math.abs(x - CX) < 9) continue;
-        const y = Math.round(yb + 6 * (1 - ((x - mid) / half) ** 2));
-        R(ctx, x, y, 1, 1, pal.ink);
-        if ((x - x0) % 5 === 0) R(ctx, x, y + 1, 1, 2, bulbs[(Math.floor((x - x0) / 5) + Math.floor(frameN / 3)) % bulbs.length]);
-      }
-    }
-    flasks();
-  }
-  function tick() { frameN++; frame(); }
-  function start() { clearInterval(timer); timer = null; if (!reduce.matches && !document.hidden) timer = setInterval(tick, 140); }
-  function rebuild() { if (build()) frame(); }
-
-  new ResizeObserver(() => rebuild()).observe(cv);
+  function rebuild() { if (build()) { if (anchorGround) anchor = anchorT = (H - (GH - LAWN) + 2) / H; draw(); } }
+  new ResizeObserver(rebuild).observe(cv);
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rebuild);
   new MutationObserver(rebuild).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-  document.addEventListener("visibilitychange", start);
-  reduce.addEventListener("change", start);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(rebuild);
-  rebuild(); start();
-  return { flasks, setParty(on) { partyLights = on; frame(); } };
+  rebuild(); requestAnimationFrame(loop);
+
+  return {
+    view(f, snap) { anchorGround = f === "ground"; anchorT = anchorGround ? (H ? (H - (GH - LAWN) + 2) / H : 0.86) : f; if (snap) { anchor = anchorT; draw(); } },
+    jump(a) { bAlt = a; cam = a; },
+    balloon(a, on) { bAlt = a; bOn = on; },
+    thresholds(b) { thBase = b; },
+    marks(on) { marksOn = on; marksEl.hidden = !on; },
+    tag(on) { tagOn = on; tagEl.hidden = !on; },
+    setParty(on) { party = on; },
+    climb(a0, a1, d, tick, done) { climbA = { a0, a1, d, tick, done, t0: performance.now() }; },
+    cancelClimb() { climbA = null; },
+    burst() {
+      if (reduceMotion.matches) return;
+      const by = anchor * H, cols = [pal.t2, pal.t3, pal.t4, pal.t5, pal.accent, pal.amber, pal.gold];
+      for (let i = 0; i < 90; i++) parts.push({ x: BX, y: by - 8, vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3.5 - 0.5, g: 0.12, life: 40 + Math.random() * 30, c: cols[i % cols.length], s: Math.random() > 0.7 ? 2 : 1 });
+    },
+    flasks, sprite
+  };
 })();
 
-setMode("daily");
-if (!store.get("it-seen-help")) openHelp();
+/* ---------- The climb ---------- */
+const N_DAILY = 7, SECS = 25, RING_C = 138.23;
+const main = $("#main"), stage = $("#stage");
+let run = null, phase = "title", tickT = null, deadline = 0, cdT = null, cdTimer = null;
+
+function setPhase(p) { phase = p; stage.dataset.phase = p; }
+function show(id, on) { const e = document.getElementById(id); if (e) e.hidden = !on; }
+function hidePlay() { ["pcard", "bar", "result", "toast"].forEach(id => show(id, false)); scene.tag(false); stage.removeAttribute("data-urgent"); }
+function nudge(el) { el.classList.remove("nudge"); void el.offsetWidth; el.classList.add("nudge"); }
+function countUp(el, to, ms) {
+  if (!el) return; if (reduceMotion.matches || !to) { el.textContent = to; return; }
+  const t0 = performance.now(); const f = now => { const t = Math.min(1, (now - t0) / ms); el.textContent = Math.round(to * (1 - Math.pow(1 - t, 3))); if (t < 1) requestAnimationFrame(f); }; requestAnimationFrame(f);
+}
+function dailyRounds() {
+  const r = rngOf(dayNumber() * 7919 + 17), idx = CATS.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  return idx.slice(0, N_DAILY);
+}
+function totals() { run.score = run.results.reduce((s, x) => s + x.pts, 0); run.alt = run.score * 10; }
+function saveRun() { if (run && run.mode === "daily") store.set("il-daily", { date: run.date, rounds: run.rounds, results: run.results, finished: !!run.finished }); }
+function savedDaily() { const s = store.get("il-daily"); return s && s.date === dateKey() && Array.isArray(s.results) && Array.isArray(s.rounds) ? s : null; }
+function stopAll() { clearInterval(tickT); clearTimeout(cdT); clearInterval(cdTimer); scene.cancelClimb(); if (typeof stopParty === "function") stopParty(); }
+
+function setHudAlt(a) { $("#h-alt").textContent = fmtM(a); }
+function updateHud(bump) {
+  setHudAlt(run.alt); $("#h-score").textContent = run.score;
+  if (bump) nudgeBump($("#h-score"));
+}
+function nudgeBump(el) { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+function renderPips() {
+  const n = run.results.length, daily = run.mode === "daily";
+  const start = daily ? 0 : Math.max(0, n + 1 - 7), end = daily ? N_DAILY : start + 7;
+  let h = "";
+  for (let i = start; i < end; i++) {
+    const x = run.results[i];
+    h += x ? `<i class="pip done" style="--tc:var(${TIERS[x.tier].color})"></i>` : i === n && (!daily || n < N_DAILY) ? `<i class="pip now"></i>` : `<i class="pip"></i>`;
+  }
+  $("#pips").innerHTML = h;
+  $("#pip-label").textContent = daily ? (n >= N_DAILY ? "Climb complete" : `Prompt ${n + 1} of ${N_DAILY}`) : `Unlimited · ${n} landed`;
+}
+
+function refreshTitle() {
+  const s = savedDaily();
+  $("#launch").textContent = !s ? "▲ Launch" : s.finished ? "▲ Today's results" : `▲ Continue · ${s.results.length + 1} of ${N_DAILY}`;
+  $("#run-no").textContent = `Climb #${dayNumber()} · ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
+}
+function showTitle() {
+  stopAll(); hidePlay(); show("panel", false); show("hud", false); show("title-screen", true);
+  setPhase("title"); scene.setParty(false); scene.thresholds(null); scene.marks(false);
+  scene.balloon(0, true); scene.jump(0); scene.view("ground", true);
+  refreshTitle();
+}
+function enterRun() {
+  stopAll(); hidePlay(); show("title-screen", false); show("panel", false); show("hud", true);
+  scene.setParty(false); scene.marks(true); scene.balloon(run.alt, true); scene.jump(run.alt); scene.view(0.66);
+  updateHud(false); renderPips(); nextPrompt();
+}
+function startDaily() {
+  const s = savedDaily();
+  run = s ? { mode: "daily", date: s.date, rounds: s.rounds, results: s.results, finished: s.finished } : { mode: "daily", date: dateKey(), rounds: dailyRounds(), results: [], finished: false };
+  totals();
+  if (run.finished || run.results.length >= N_DAILY) { run.finished = true; return showSummary(); }
+  enterRun();
+}
+function startUnlimited() { run = { mode: "unlimited", rounds: [], results: [] }; totals(); enterRun(); }
+
+function nextPrompt() {
+  hidePlay(); scene.thresholds(null);
+  const n = run.results.length;
+  if (run.mode === "unlimited" && run.rounds.length <= n) {
+    let c; do { c = Math.floor(Math.random() * CATS.length); } while (run.rounds.slice(-8).includes(c));
+    run.rounds.push(c);
+  }
+  renderPips(); setPhase("countdown");
+  let k = 3; const toast = $("#toast"); show("toast", true);
+  const step = () => {
+    if (k === 0) { show("toast", false); return startPrompt(); }
+    toast.innerHTML = `${n === 0 && run.alt === 0 ? "inflating" : "launching"} · the clock starts in <b>${k}</b>`; k--;
+    cdT = setTimeout(step, 750);
+  };
+  step();
+}
+function startPrompt() {
+  const n = run.results.length, cat = CATS[run.rounds[n]];
+  $("#p-eyebrow").textContent = run.mode === "daily" ? `Prompt ${n + 1} of ${N_DAILY}` : `Unlimited · prompt ${n + 1}`;
+  $("#p-text").textContent = cat.prompt; $("#p-sub").textContent = cat.sub;
+  const pc = $("#pcard"); pc.hidden = false; pc.classList.remove("in", "out"); void pc.offsetWidth; pc.classList.add("in");
+  const bar = $("#bar"); bar.hidden = false; bar.classList.remove("out");
+  $("#hint").textContent = ""; const inp = $("#answer"); inp.value = ""; inp.disabled = false; inp.focus({ preventScroll: true });
+  deadline = Date.now() + SECS * 1000; setPhase("play"); tick(); clearInterval(tickT); tickT = setInterval(tick, 100);
+}
+function tick() {
+  const rem = Math.max(0, deadline - Date.now()), f = rem / (SECS * 1000);
+  $("#ring-n").textContent = Math.ceil(rem / 1000);
+  $("#ring-prog").style.strokeDashoffset = (RING_C * (1 - f)).toFixed(1);
+  $("#timebar").style.transform = `scaleX(${f.toFixed(3)})`;
+  if (rem <= 5000) stage.dataset.urgent = "1";
+  if (rem <= 0 && phase === "play") lockIn(-1, "");
+}
+$("#bar").addEventListener("submit", e => {
+  e.preventDefault();
+  if (phase !== "play") return;
+  const inp = $("#answer"), text = inp.value.trim(); if (!text) return;
+  const cat = CATS[run.rounds[run.results.length]], m = match(cat, text);
+  if (!m) { $("#hint").textContent = `“${text}”: not on our list. try again`; nudge(inp); inp.select(); return; }
+  lockIn(m.idx, text);
+});
+function lockIn(idx, text) {
+  clearInterval(tickT); stage.removeAttribute("data-urgent"); setPhase("climb");
+  const ci = run.rounds[run.results.length], cat = CATS[ci];
+  const tier = idx < 0 ? 0 : tierOf(cat, idx), pts = TIERS[tier].pts;
+  const res = { ci, idx, text: idx < 0 ? "" : cat.answers[idx].name, tier, pts };
+  const a0 = run.alt; run.results.push(res); totals(); saveRun();
+  $("#answer").disabled = true; $("#answer").blur();
+  $("#pcard").classList.add("out"); $("#bar").classList.add("out");
+  setTimeout(() => { show("pcard", false); show("bar", false); }, 300);
+  if (!pts) { setTimeout(() => showResult(res), 450); return; }
+  const tag = $("#tag"); tag.textContent = `“${res.text}” ▲`; tag.dataset.t = "0"; scene.tag(true); scene.thresholds(a0);
+  const d = reduceMotion.matches ? 300 : 1400 + Math.min(4200, (run.alt - a0) * 3.2);
+  scene.climb(a0, run.alt, d, alt => {
+    setHudAlt(alt);
+    let reached = 0; for (let i = 1; i <= 5; i++) if (a0 + TIERS[i].pts * 10 <= alt + 0.5) reached = i;
+    if (tag.dataset.t !== String(reached)) tag.dataset.t = reached;
+  }, () => setTimeout(() => showResult(res), 380));
+}
+function showResult(res) {
+  scene.tag(false); setPhase("result");
+  const T = TIERS[res.tier], cat = CATS[res.ci], last = run.mode === "daily" && run.results.length >= N_DAILY;
+  const el = $("#result");
+  el.style.setProperty("--tc", `var(${T.color})`);
+  el.innerHTML = `<canvas class="tier-sprite" width="12" height="12" aria-hidden="true"></canvas>
+    <h2 class="tier-name">${esc(T.name)}</h2>
+    ${res.idx >= 0 ? `<p class="r-answer">“${esc(res.text)}”</p>` : `<p class="r-answer muted">Nothing launched</p>`}
+    <p class="r-pts"><b>+<span id="r-count">0</span> pts</b> · ${res.pts ? `climb ${fmtM(res.pts * 10)}` : "the clock beat you to it"}</p>
+    <p class="r-note">${esc(T.note)}</p>
+    ${res.idx >= 0 ? `<p class="r-est">about ${fmtPct(cat.answers[res.idx].pct)} of players would say this</p>` : ""}
+    <div class="r-actions">
+      <button type="button" class="btn ${last ? "amber" : "accent"}" id="r-next">${last ? "Touch down ▼" : "Next prompt ▲"}</button>
+      ${run.mode === "unlimited" ? `<button type="button" class="btn ghost" id="r-end">End run</button>` : ""}
+    </div>`;
+  el.hidden = false; el.classList.remove("in"); void el.offsetWidth; el.classList.add("in");
+  scene.sprite(el.querySelector(".tier-sprite"), T.sprite, T.color);
+  countUp($("#r-count"), res.pts, 700);
+  updateHud(res.pts > 0); renderPips();
+  if (res.tier === 5) scene.burst();
+  $("#r-next").addEventListener("click", () => last ? finishRun() : nextPrompt());
+  const end = $("#r-end"); if (end) end.addEventListener("click", finishRun);
+  setTimeout(() => { const b = $("#r-next"); if (b && phase === "result") b.focus({ preventScroll: true }); }, 50);
+}
+function finishRun() {
+  if (run.mode === "daily" && !run.finished) {
+    run.finished = true; saveRun();
+    const st = store.get("il-stats") || { last: null, streak: 0, best: 0, played: 0, top: 0 };
+    if (st.last !== run.date) {
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      st.streak = st.last === dateKey(y) ? st.streak + 1 : 1; st.best = Math.max(st.best, st.streak); st.played++; st.top = Math.max(st.top || 0, run.score); st.last = run.date;
+      store.set("il-stats", st);
+    }
+  }
+  showSummary();
+}
+
+/* simulated field: players who pick answers in proportion to their estimated abundance, 10% run out of time */
+function simulate(rounds, seed) {
+  const r = rngOf(seed), tables = rounds.map(ci => { const c = CATS[ci], tot = c.answers.reduce((s, a) => s + a.pct, 0); let acc = 0; return c.answers.map((a, i) => ({ acc: (acc += a.pct / tot), pts: TIERS[tierOf(c, i)].pts })); });
+  const out = [];
+  for (let k = 0; k < 3000; k++) {
+    let s = 0;
+    for (const t of tables) { if (r() < 0.1) continue; const x = r(); s += (t.find(o => o.acc >= x) || t[t.length - 1]).pts; }
+    out.push(s);
+  }
+  return out;
+}
+function showSummary() {
+  stopAll(); hidePlay(); show("hud", false); show("title-screen", false); setPhase("summary");
+  scene.setParty(false); scene.thresholds(null); scene.marks(false); scene.balloon(run.alt, true); scene.jump(run.alt); scene.view(0.5);
+  const res = run.results, daily = run.mode === "daily";
+  const sims = simulate(res.map(x => x.ci), daily ? dayNumber() * 31 + 7 : 99);
+  const below = sims.filter(v => v < run.score).length, ties = sims.filter(v => v === run.score).length;
+  const better = Math.round((below + ties / 2) / sims.length * 100);
+  const maxV = Math.max(run.score, ...sims, 100), bins = 28, bw = Math.ceil((maxV + 1) / bins), hist = new Array(bins).fill(0);
+  sims.forEach(v => hist[Math.min(bins - 1, Math.floor(v / bw))]++);
+  const hmax = Math.max(...hist), myBin = Math.min(bins - 1, Math.floor(run.score / bw));
+  const band = BANDS.find(b => run.score >= b[0] && run.score <= b[1]);
+  const st = store.get("il-stats");
+  const share = `Imperillion ${daily ? "#" + dayNumber() : "Unlimited"} · ${run.score} pts · ▲${fmtM(run.alt)}\n${res.map(x => TIERS[x.tier].em).join("")}`;
+  main.innerHTML = `<section class="card" aria-labelledby="sum-h">
+    <div class="sum-top"><span class="wm-small">Imperillion</span><span class="eyebrow">${daily ? `Climb #${dayNumber()} complete` : `Unlimited · ${res.length} prompts`}</span></div>
+    <div class="big-score" id="sum-h"><b id="sum-score">0</b><span>▲ ${fmtM(run.alt)}</span></div>
+    <div>
+      <div class="hist" role="img" aria-label="Your score of ${run.score} against 3,000 simulated players">${hist.map((c, i) => `<i class="${i === myBin ? "me" : ""}" style="height:${Math.max(2, c / hmax * 100).toFixed(1)}%"></i>`).join("")}</div>
+      <div class="hist-axis"><span>0</span><span>${Math.round(maxV / 2)}</span><span>${maxV}</span></div>
+    </div>
+    <p class="better">Better than ${better}% of simulated players</p>
+    <h3>Climb log <small>higher = rarer</small></h3>
+    <div class="log">${res.map((x, i) => `<div class="lcol" style="--tc:var(${TIERS[x.tier].color})"><canvas width="12" height="12" data-sprite="${TIERS[x.tier].sprite}" data-color="${TIERS[x.tier].color}" aria-hidden="true"></canvas><i style="height:${Math.max(3, x.pts / 120 * 100).toFixed(0)}%"></i><span>${i + 1}</span></div>`).join("")}</div>
+    <h3>Your answers</h3>
+    <ol class="catch">${res.map((x, i) => `<li style="--tc:var(${TIERS[x.tier].color})"><span class="n">${i + 1}</span><div><p class="q">${esc(CATS[x.ci].prompt)}</p><p class="a">${x.idx >= 0 ? `${esc(x.text)}<small>${TIERS[x.tier].name} · about ${fmtPct(CATS[x.ci].answers[x.idx].pct)} of players</small>` : `<span style="color:var(--muted)">Out of time</span>`}</p></div><b>+${x.pts}</b></li>`).join("")}</ol>
+    ${daily ? `<h3>The ranks</h3><div class="ranks">${BANDS.map(b => `<div class="rank${b === band ? " me" : ""}" style="--tc:var(--t${b[2]})"><span class="rr">${b[0]}${b[1] === Infinity ? "+" : "–" + b[1]}</span><b>${b[3]}</b><span>${b[4]}</span></div>`).join("")}</div>` : ""}
+    ${daily && st ? `<div class="stats"><div class="stat"><b>${st.streak}</b><span>Day streak</span></div><div class="stat"><b>${st.best}</b><span>Best streak</span></div><div class="stat"><b>${st.top}</b><span>Best score</span></div></div>` : ""}
+    <label for="share-text" class="eyebrow"><span>Share your climb</span></label>
+    <textarea class="share" id="share-text" readonly>${esc(share)}</textarea>
+    <div class="actions">
+      <button type="button" class="btn accent" id="s-copy">Copy result</button>
+      <button type="button" class="btn ghost" id="s-unl">${daily ? "Keep climbing ∞" : "New unlimited run"}</button>
+      <button type="button" class="btn ghost" id="s-party">Hot Flask party</button>
+      <button type="button" class="btn ghost" id="s-home">Back to campus</button>
+    </div>
+    ${daily ? `<p class="countdown" id="countdown"></p>` : ""}
+    <p class="fine">The comparison uses 3,000 simulated players who answer in line with the hand-estimated abundance figures, not real players.</p>
+  </section>`;
+  show("panel", true); $("#panel").scrollTop = 0;
+  main.querySelectorAll("canvas[data-sprite]").forEach(c => scene.sprite(c, c.dataset.sprite, c.dataset.color));
+  countUp($("#sum-score"), run.score, 1100);
+  $("#s-copy").addEventListener("click", e => {
+    const btn = e.currentTarget, ta = $("#share-text");
+    const ok = () => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy result", 1600); };
+    const fb = () => { ta.focus(); ta.select(); btn.textContent = "Selected, press copy"; };
+    try { navigator.clipboard.writeText(ta.value).then(ok, fb); } catch { fb(); }
+  });
+  $("#s-unl").addEventListener("click", startUnlimited);
+  $("#s-party").addEventListener("click", showParty);
+  $("#s-home").addEventListener("click", showTitle);
+  if (daily) {
+    const tickCd = () => {
+      const el = $("#countdown"); if (!el) return clearInterval(cdTimer);
+      const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0);
+      if (dateKey(n) !== run.date) { clearInterval(cdTimer); el.textContent = "A new climb is ready."; return; }
+      const s = Math.floor((m - n) / 1000);
+      el.textContent = `Next climb in ${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    };
+    tickCd(); clearInterval(cdTimer); cdTimer = setInterval(tickCd, 1000);
+  }
+}
+
+function showParty() {
+  abandonPrompt(); stopAll(); hidePlay(); show("hud", false); show("title-screen", false); setPhase("party");
+  scene.thresholds(null); scene.marks(false); scene.balloon(0, false); scene.jump(0); scene.view(0.62); scene.setParty(true);
+  show("panel", true); $("#panel").scrollTop = 0; renderPartySetup();
+}
+/* leaving a daily prompt mid-clock counts as out of time */
+function abandonPrompt() {
+  if (run && run.mode === "daily" && phase === "play" && run.results.length < N_DAILY) {
+    clearInterval(tickT);
+    run.results.push({ ci: run.rounds[run.results.length], idx: -1, text: "", tier: 0, pts: 0 }); totals(); saveRun();
+  }
+}
+
+/* ---------- Menu, help, keys ---------- */
+const menu = $("#menu"), help = $("#help");
+function openMenu() { $("#m-warn").hidden = !(run && run.mode === "daily" && phase === "play"); menu.hidden = false; $("#m-close").focus(); }
+function closeMenu() { menu.hidden = true; if (phase === "play") $("#answer").focus({ preventScroll: true }); }
+$("#menu-btn").addEventListener("click", openMenu);
+$("#m-close").addEventListener("click", closeMenu);
+menu.addEventListener("click", e => { if (e.target === menu) closeMenu(); });
+const go = fn => () => { menu.hidden = true; abandonPrompt(); fn(); };
+$("#m-daily").addEventListener("click", go(startDaily));
+$("#m-unl").addEventListener("click", go(startUnlimited));
+$("#m-party").addEventListener("click", go(showParty));
+$("#m-home").addEventListener("click", go(showTitle));
+$("#m-help").addEventListener("click", () => { menu.hidden = true; openHelp(); });
+$("#tiers").innerHTML = TIERS.slice(1).map(t => `<canvas width="12" height="12" data-sprite="${t.sprite}" data-color="${t.color}" aria-hidden="true"></canvas><span><b style="color:var(${t.color})">${t.name}</b> · ${t.range}</span><span class="pt">+${t.pts}</span>`).join("");
+function openHelp() { help.hidden = false; $("#tiers").querySelectorAll("canvas").forEach(c => scene.sprite(c, c.dataset.sprite, c.dataset.color)); $("#help-close").focus(); }
+function closeHelp() { help.hidden = true; store.set("il-seen-help", true); if (phase === "play") $("#answer").focus({ preventScroll: true }); }
+$("#help-close").addEventListener("click", closeHelp);
+help.addEventListener("click", e => { if (e.target === help) closeHelp(); });
+$("#t-help").addEventListener("click", openHelp);
+$("#launch").addEventListener("click", startDaily);
+$("#t-unl").addEventListener("click", startUnlimited);
+$("#t-party").addEventListener("click", showParty);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { if (!help.hidden) closeHelp(); else if (!menu.hidden) closeMenu(); }
+});
+
+showTitle();
+if (!store.get("il-seen-help")) openHelp();
 </script>
 
 </body>
