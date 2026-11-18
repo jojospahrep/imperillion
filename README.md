@@ -1,8 +1,8 @@
-# Imperial Trace
+# Imperillion
 
 Imperial College London trivia where the rarest answer wins.
 
-**Play:** https://jojospahrep.github.io/imperial-trace/
+**Play:** https://jojospahrep.github.io/imperillion/
 
 - **Daily**: three prompts a day, the same for everyone, with streaks and a shareable result.
 - **Unlimited**: keep playing random prompts.
