@@ -246,7 +246,22 @@ form.guess input:focus { border-color: var(--accent); outline: none; box-shadow:
 .lcol i { display: block; width: 4px; background: var(--tc); box-shadow: 0 0 8px var(--tc); }
 .lcol span { font: 500 10px/1 var(--mono); color: var(--muted); }
 .catch { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.catch li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; background: rgba(5, 8, 15, 0.35); border-left: 3px solid var(--tc); }
+.catch > li { background: rgba(5, 8, 15, 0.35); border-left: 3px solid var(--tc); }
+.crow { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto 14px; gap: 12px; align-items: center; width: 100%; padding: 10px 12px; text-align: left; background: none; border: 0; color: inherit; cursor: pointer; }
+.crow:hover { background: rgba(99, 230, 190, 0.06); }
+.crow .chev { font: 700 12px/1 var(--mono); color: var(--muted); transition: transform .15s; }
+.crow[aria-expanded="true"] .chev { transform: rotate(90deg); color: var(--accent); }
+.cx { padding: 4px 12px 14px 46px; display: flex; flex-direction: column; gap: 8px; animation: cxIn .25s steps(4); }
+@keyframes cxIn { from { opacity: 0; transform: translateY(-4px); } }
+.cx-h { margin: 0; font: 600 10px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--t5); }
+.niche { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; counter-reset: n; }
+.niche li { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 5px 8px; border-left: 2px solid var(--tc); background: rgba(5, 8, 15, 0.4); font-size: 14px; counter-increment: n; }
+.niche li::before { content: counter(n); font: 600 11px/1 var(--mono); color: var(--muted); width: 12px; flex: none; }
+.niche li > span:first-of-type { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.niche li.me { outline: 2px solid var(--tc); }
+.niche li.me > span:first-of-type::after { content: " · you"; font: 600 11px/1 var(--mono); color: var(--accent); }
+.niche .np { font: 500 11px/1.3 var(--mono); color: var(--tc); white-space: nowrap; }
+.cx-f { margin: 0; font: 500 12px/1.5 var(--mono); color: var(--muted); }
 .catch .n { font: 600 14px/1 var(--mono); color: var(--muted); }
 .catch .q { margin: 0; font: 500 11px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .catch .a { margin: 4px 0 0; font: 600 15px/1.3 var(--body); overflow-wrap: anywhere; }
@@ -1701,6 +1716,14 @@ function simulate(rounds, seed) {
   }
   return out;
 }
+/* the deepest answers for one prompt, shown only on the end screen after the run */
+function nicheHTML(x) {
+  const c = CATS[x.ci], order = c.answers.map((_, i) => i).sort((p, q) => c.answers[p].pct - c.answers[q].pct);
+  const top = order.slice(0, 5), rank = x.idx >= 0 ? order.indexOf(x.idx) + 1 : 0, common = c.answers[order[order.length - 1]];
+  return `<p class="cx-h">▲ Most niche answers</p>
+    <ol class="niche">${top.map(i => { const t = TIERS[tierOf(c, i)]; return `<li class="${i === x.idx ? "me" : ""}" style="--tc:var(${t.color})"><span>${esc(c.answers[i].name)}</span><span class="np">${t.name} · ${fmtPct(c.answers[i].pct)}</span></li>`; }).join("")}</ol>
+    <p class="cx-f">${rank === order.length ? `Yours was the most common of ${c.answers.length} accepted answers.` : `${rank ? `Yours was #${rank} most niche of ${c.answers.length} accepted answers.` : `${c.answers.length} answers would have counted.`} Most common: ${esc(common.name)} (${fmtPct(common.pct)}).`}</p>`;
+}
 function showSummary() {
   stopAll(); hidePlay(); show("hud", false); show("title-screen", false); setPhase("summary");
   scene.setParty(false); scene.thresholds(null); scene.marks(false); scene.balloon(run.alt, true); scene.jump(run.alt); scene.view(0.5);
@@ -1724,8 +1747,8 @@ function showSummary() {
     <p class="better">Better than ${better}% of simulated players</p>
     <h3>Climb log <small>higher = rarer</small></h3>
     <div class="log">${res.map((x, i) => `<div class="lcol" style="--tc:var(${TIERS[x.tier].color})"><canvas width="12" height="12" data-sprite="${TIERS[x.tier].sprite}" data-color="${TIERS[x.tier].color}" aria-hidden="true"></canvas><i style="height:${Math.max(3, x.pts / 120 * 100).toFixed(0)}%"></i><span>${i + 1}</span></div>`).join("")}</div>
-    <h3>Your answers</h3>
-    <ol class="catch">${res.map((x, i) => `<li style="--tc:var(${TIERS[x.tier].color})"><span class="n">${i + 1}</span><div><p class="q">${esc(CATS[x.ci].prompt)}</p><p class="a">${x.idx >= 0 ? `${esc(x.text)}<small>${TIERS[x.tier].name} · about ${fmtPct(CATS[x.ci].answers[x.idx].pct)} of players</small>` : `<span style="color:var(--muted)">Out of time</span>`}</p></div><b>+${x.pts}</b></li>`).join("")}</ol>
+    <h3>Your answers <small>tap one to see the most niche answers</small></h3>
+    <ol class="catch">${res.map((x, i) => `<li style="--tc:var(${TIERS[x.tier].color})"><button type="button" class="crow" aria-expanded="false" aria-controls="cx-${i}"><span class="n">${i + 1}</span><div><p class="q">${esc(CATS[x.ci].prompt)}</p><p class="a">${x.idx >= 0 ? `${esc(x.text)}<small>${TIERS[x.tier].name} · about ${fmtPct(CATS[x.ci].answers[x.idx].pct)} of players</small>` : `<span style="color:var(--muted)">Out of time</span>`}</p></div><b>+${x.pts}</b><span class="chev" aria-hidden="true">▶</span></button><div class="cx" id="cx-${i}" hidden>${nicheHTML(x)}</div></li>`).join("")}</ol>
     ${daily ? `<h3>The ranks</h3><div class="ranks">${BANDS.map(b => `<div class="rank${b === band ? " me" : ""}" style="--tc:var(--t${b[2]})"><span class="rr">${b[0]}${b[1] === Infinity ? "+" : "–" + b[1]}</span><b>${b[3]}</b><span>${b[4]}</span></div>`).join("")}</div>` : ""}
     ${daily && st ? `<div class="stats"><div class="stat"><b>${st.streak}</b><span>Day streak</span></div><div class="stat"><b>${st.best}</b><span>Best streak</span></div><div class="stat"><b>${st.top}</b><span>Best score</span></div></div>` : ""}
     <label for="share-text" class="eyebrow"><span>Share your climb</span></label>
@@ -1741,6 +1764,10 @@ function showSummary() {
   </section>`;
   show("panel", true); $("#panel").scrollTop = 0;
   main.querySelectorAll("canvas[data-sprite]").forEach(c => scene.sprite(c, c.dataset.sprite, c.dataset.color));
+  main.querySelectorAll(".crow").forEach(b => b.addEventListener("click", () => {
+    const open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", String(open)); document.getElementById(b.getAttribute("aria-controls")).hidden = !open;
+  }));
   countUp($("#sum-score"), run.score, 1100);
   $("#s-copy").addEventListener("click", e => {
     const btn = e.currentTarget, ta = $("#share-text");
