@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Imperial College London trivia where the rarest answer wins. Daily, unlimited and party modes.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Imperial Trace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centred lab-notebook column on graph paper. Guesses land as periodic-table tiles; the reveal is an abundance chart. */
+:root {
+  --paper: #EEF2F8;
+  --grid: rgba(31, 79, 224, 0.07);
+  --surface: #FFFFFF;
+  --ink: #0E1A2B;
+  --muted: #56657A;
+  --line: #C9D3E0;
+  --accent: #1F4FE0;
+  --accent-ink: #FFFFFF;
+  --miss: #A9B4C3;
+  --t1: #7D8A9C;   /* abundant */
+  --t2: #1F8F80;   /* common */
+  --t3: #C77812;   /* scarce */
+  --t4: #B82C62;   /* rare */
+  --t5: #6A35E0;   /* rarest */
+  --t5-glow: rgba(106, 53, 224, 0.28);
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0A111E; --grid: rgba(110, 146, 255, 0.06); --surface: #111B2E; --ink: #E6ECF5; --muted: #93A1B5;
+    --line: #24344F; --accent: #7196FF; --accent-ink: #0A111E; --miss: #3C4A60;
+    --t1: #8E9BAE; --t2: #3CC2AE; --t3: #F0A23B; --t4: #F0629A; --t5: #A57CFF; --t5-glow: rgba(165, 124, 255, 0.3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0A111E; --grid: rgba(110, 146, 255, 0.06); --surface: #111B2E; --ink: #E6ECF5; --muted: #93A1B5;
+  --line: #24344F; --accent: #7196FF; --accent-ink: #0A111E; --miss: #3C4A60;
+  --t1: #8E9BAE; --t2: #3CC2AE; --t3: #F0A23B; --t4: #F0629A; --t5: #A57CFF; --t5-glow: rgba(165, 124, 255, 0.3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font: 15px/1.5 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* Header */
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mark { display: flex; align-items: center; gap: 10px; }
+.mark-tile {
+  width: 42px; height: 42px; border: 2px solid var(--ink); border-radius: 4px; position: relative;
+  display: grid; place-items: center; font: 800 20px/1 var(--display); background: var(--surface);
+}
+.mark-tile small { position: absolute; top: 2px; left: 4px; font: 500 8px/1 var(--mono); color: var(--muted); }
+.mark h1 { margin: 0; font: 800 22px/1 var(--display); letter-spacing: -0.02em; }
+.mark p { margin: 2px 0 0; font: 500 11px/1 var(--mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.modes { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.modes button, .icon-btn {
+  font: 600 13px/1 var(--body); border: 0; background: transparent; color: var(--muted);
+  padding: 8px 14px; border-radius: 999px; cursor: pointer;
+}
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.icon-btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); width: 34px; height: 34px; padding: 0; }
+.head-right { display: flex; gap: 8px; align-items: center; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Prompt card */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font: 500 11px/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.eyebrow b { color: var(--ink); font-weight: 600; }
+.prompt { margin: 0; font: 700 clamp(24px, 6vw, 34px)/1.12 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+.sub { margin: -8px 0 0; color: var(--muted); font-size: 14px; }
+
+form.guess { display: flex; gap: 8px; }
+form.guess input {
+  flex: 1; min-width: 0; font: 500 17px/1 var(--body); padding: 14px 14px; border-radius: 8px;
+  border: 2px solid var(--line); background: var(--paper); color: var(--ink);
+}
+form.guess input:focus { border-color: var(--accent); outline: none; }
+.btn {
+  font: 600 15px/1 var(--body); padding: 14px 18px; border-radius: 8px; border: 2px solid var(--ink);
+  background: var(--ink); color: var(--paper); cursor: pointer; white-space: nowrap;
+}
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+
+.feedback { min-height: 22px; font: 500 14px/1.4 var(--mono); color: var(--muted); }
+.feedback.hit { color: var(--ink); }
+.feedback.gem { color: var(--t5); font-weight: 600; }
+
+/* Element tiles */
+.slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.tile {
+  aspect-ratio: 1 / 1.12; max-width: 100%; border-radius: 6px; position: relative; padding: 6px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  border: 2px dashed var(--line); background: transparent; min-width: 0;
+}
+.tile .n { position: absolute; top: 5px; left: 6px; font: 600 10px/1 var(--mono); }
+.tile .p { position: absolute; top: 5px; right: 6px; font: 500 10px/1 var(--mono); color: var(--muted); }
+.tile .sym { font: 800 clamp(20px, 6vw, 30px)/1 var(--display); letter-spacing: -0.02em; }
+.tile .nm { font: 500 10px/1.15 var(--body); margin-top: 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; max-width: 100%; }
+.tile.filled { border-style: solid; background: var(--surface); animation: drop .35s cubic-bezier(.2,.9,.3,1.3); }
+.tile.miss { border-style: solid; border-color: var(--miss); color: var(--muted); }
+.tile.miss .sym { font-size: clamp(16px, 4.6vw, 22px); }
+.tile.t1 { border-color: var(--t1); } .tile.t1 .n { color: var(--t1); }
+.tile.t2 { border-color: var(--t2); } .tile.t2 .n { color: var(--t2); }
+.tile.t3 { border-color: var(--t3); } .tile.t3 .n { color: var(--t3); }
+.tile.t4 { border-color: var(--t4); } .tile.t4 .n { color: var(--t4); }
+.tile.t5 { border-color: var(--t5); box-shadow: 0 0 0 4px var(--t5-glow); } .tile.t5 .n, .tile.t5 .sym { color: var(--t5); }
+@keyframes drop { from { transform: translateY(-8px) scale(.92); opacity: .3; } to { transform: none; opacity: 1; } }
+
+.scoreline { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.score { font: 800 28px/1 var(--display); font-variant-numeric: tabular-nums; }
+.score span { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-left: 6px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 500 11px/1.3 var(--mono); color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* Reveal */
+.reveal h2, .summary h2 { margin: 0; font: 700 20px/1.2 var(--display); letter-spacing: -0.01em; }
+.gemcall { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 8px; border: 2px solid var(--t5); background: var(--paper); }
+.gemcall .tile { width: 72px; flex: none; }
+.gemcall p { margin: 0; }
+.gemcall .lbl { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--t5); }
+.gemcall .gname { font: 700 18px/1.2 var(--display); margin-top: 4px; }
+.gemcall .gnote { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.chart { display: flex; flex-direction: column; gap: 2px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 34% 52px; gap: 10px; align-items: center; padding: 5px 6px; border-radius: 4px; font-size: 13.5px; }
+.row .an { min-width: 0; overflow-wrap: anywhere; }
+.row.found { background: var(--paper); font-weight: 600; }
+.row.found .an::before { content: "✓ "; color: var(--accent); }
+.bar { height: 8px; background: var(--paper); border-radius: 2px; overflow: hidden; }
+.bar b { display: block; height: 100%; border-radius: 2px; }
+.row .pc { font: 500 12px/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.chart-head { display: grid; grid-template-columns: minmax(0,1fr) 34% 52px; gap: 10px; padding: 0 6px 4px; font: 500 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.chart-head span:last-child { text-align: right; }
+.fineprint { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* Summary */
+.rounds { display: flex; flex-direction: column; gap: 8px; }
+.rline { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.rline .rp { min-width: 0; font-size: 14px; }
+.rline .em { font-size: 15px; letter-spacing: 1px; white-space: nowrap; }
+.rline .rs { font: 700 16px/1 var(--display); font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
+.big { font: 800 clamp(44px, 12vw, 64px)/1 var(--display); letter-spacing: -0.03em; }
+.big span { font: 500 14px/1 var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-left: 8px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.stat b { display: block; font: 700 22px/1 var(--display); font-variant-numeric: tabular-nums; }
+.stat span { font: 500 10px/1.2 var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+textarea.share { width: 100%; min-height: 110px; resize: vertical; font: 13px/1.5 var(--mono); padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.countdown { font: 500 13px/1.4 var(--mono); color: var(--muted); }
+
+/* Help overlay */
+.overlay { position: fixed; inset: 0; background: rgba(8, 14, 26, 0.55); display: grid; place-items: center; z-index: 20;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.overlay .card { max-width: 520px; width: 100%; max-height: 100%; overflow-y: auto; }
+.overlay h2 { margin: 0; font: 700 22px/1.2 var(--display); }
+.overlay ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.tiers { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14px; align-items: center; }
+.tiers .sw { width: 14px; height: 14px; border-radius: 3px; }
+.tiers .pt { font: 600 13px/1 var(--mono); text-align: right; }
+
+/* Hot Flask party mode */
+.plist { display: flex; flex-direction: column; gap: 8px; }
+.prow { display: grid; grid-template-columns: 28px minmax(0, 1fr) 34px; gap: 8px; align-items: center; }
+.prow .pnum { font: 600 13px/1 var(--mono); color: var(--muted); text-align: center; }
+.prow input { min-width: 0; font: 500 16px/1 var(--body); padding: 10px 12px; border-radius: 8px; border: 2px solid var(--line); background: var(--paper); color: var(--ink); }
+.prow input:focus { border-color: var(--accent); outline: none; }
+.icon-btn:disabled { opacity: .35; cursor: default; }
+.seg { display: flex; gap: 4px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { font: 600 13px/1 var(--body); border: 0; background: transparent; color: var(--muted); padding: 9px 12px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.holder { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); }
+.holder .lbl { margin: 0; font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.holder .hname { margin: 6px 0 0; font: 800 clamp(26px, 7vw, 38px)/1 var(--display); letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.flask { width: 72px; flex: none; animation: jiggle 2.6s ease-in-out infinite; transform-origin: 50% 90%; }
+.flask svg { display: block; width: 100%; height: auto; }
+.flask .liq { fill: var(--accent); opacity: .85; }
+.flask .bub { fill: var(--surface); opacity: 0; animation: rise 1.5s ease-in infinite; }
+.flask .b2 { animation-delay: .4s; } .flask .b3 { animation-delay: .8s; } .flask .b4 { animation-delay: 1.1s; }
+.flask .glass { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+.flask .lip { fill: var(--surface); stroke: var(--ink); stroke-width: 2.5; }
+.flask .steam { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; opacity: 0; animation: steam 2s ease-out infinite; }
+.flask .s2 { animation-delay: 1s; }
+.flask.burst { animation: shake .5s linear 2; }
+.flask.burst .liq { fill: var(--t4); }
+.flask.idle { animation: none; } .flask.idle .bub, .flask.idle .steam { animation: none; }
+@keyframes rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-34px); opacity: 0; } }
+@keyframes steam { 0% { transform: translateY(4px); opacity: 0; } 40% { opacity: .7; } 100% { transform: translateY(-10px); opacity: 0; } }
+@keyframes jiggle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-4deg); } 75% { transform: translateX(5px) rotate(4deg); } }
+.nudge { animation: nudge .3s; }
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 33% { transform: translateX(-6px); } 66% { transform: translateX(6px); } }
+.pchips, .uchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pchip { display: inline-flex; gap: 8px; align-items: center; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); font: 600 13px/1 var(--body); }
+.pchip .lv { font: 500 11px/1 var(--mono); color: var(--t4); letter-spacing: 1px; }
+.pchip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.pchip.out { opacity: .45; text-decoration: line-through; }
+.uchip { font: 500 12px/1 var(--body); padding: 5px 8px; border-radius: 4px; background: var(--paper); border-left: 3px solid var(--line); }
+.uchip.t1 { border-left-color: var(--t1); } .uchip.t2 { border-left-color: var(--t2); } .uchip.t3 { border-left-color: var(--t3); } .uchip.t4 { border-left-color: var(--t4); } .uchip.t5 { border-left-color: var(--t5); }
+.boom { font: 800 clamp(30px, 8vw, 44px)/1.05 var(--display); letter-spacing: -0.02em; color: var(--t4); margin: 0; text-wrap: balance; }
+@media (prefers-reduced-motion: reduce) { .flask, .flask .bub, .flask .steam, .flask.burst, .nudge { animation: none !important; } .flask .bub { opacity: .7; } }
+
+footer { text-align: center; font: 500 11px/1.5 var(--mono); color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { .tile.filled { animation: none; } }
+@media (max-width: 420px) {
+  .card { padding: 16px; }
+  .slots { gap: 5px; }
+  .tile { padding: 4px; }
+  .tile .nm { font-size: 9px; }
+  .tile .p { display: none; }
+  .row { grid-template-columns: minmax(0,1fr) 28% 44px; gap: 8px; }
+  .chart-head { grid-template-columns: minmax(0,1fr) 28% 44px; gap: 8px; }
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">
+      <div class="mark-tile" aria-hidden="true"><small>1907</small>Ic</div>
+      <div>
+        <h1>Imperial Trace</h1>
+        <p>Find the rarest answer</p>
+      </div>
+    </div>
+    <div class="head-right">
+      <div class="modes" role="group" aria-label="Game mode">
+        <button type="button" id="mode-daily" aria-pressed="true">Daily</button>
+        <button type="button" id="mode-unlimited" aria-pressed="false">Unlimited</button>
+        <button type="button" id="mode-party" aria-pressed="false">Party</button>
+      </div>
+      <button type="button" class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    </div>
+  </header>
+
+  <main id="main"></main>
+
+  <footer>Unofficial fan trivia. Not affiliated with Imperial College London.<br>Abundance figures are hand-estimated, not live player data.</footer>
+</div>
+
+<div class="overlay" id="help" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <h2 id="help-title">How to play</h2>
+    <ol>
+      <li>Each prompt has a list of accepted answers. Every answer has an <b>abundance</b>: the share of players we reckon would think of it.</li>
+      <li>You get <b>5 guesses</b> per prompt. A guess that isn't on the list still uses one up.</li>
+      <li>Obvious answers score little. Obscure ones score big. Hit the single rarest answer and the round ends with a bonus.</li>
+      <li>Spelling is forgiving: small typos, common abbreviations and surnames are accepted.</li>
+      <li><b>Daily</b> is three prompts, the same for everyone, once a day. <b>Unlimited</b> keeps dealing prompts.</li>
+      <li><b>Party</b> is Hot Flask, for 2–8 players sharing one device. Name an unused answer to pass the flask on. It boils over at a hidden moment 10–30 seconds after it's lit, and whoever holds it loses a life. Passing keeps the time that's left, but never less than 8 seconds. Saying the rarest answer wins a life back.</li>
+    </ol>
+    <div class="tiers">
+      <i class="sw" style="background:var(--t1)"></i><span>Abundant · 30% or more</span><span class="pt">+1</span>
+      <i class="sw" style="background:var(--t2)"></i><span>Common · 12–30%</span><span class="pt">+2</span>
+      <i class="sw" style="background:var(--t3)"></i><span>Scarce · 5–12%</span><span class="pt">+4</span>
+      <i class="sw" style="background:var(--t4)"></i><span>Rare · under 5%</span><span class="pt">+7</span>
+      <i class="sw" style="background:var(--t5)"></i><span>Rarest answer on the list</span><span class="pt">+15</span>
+    </div>
+    <button type="button" class="btn" id="help-close">Start playing</button>
+  </div>
+</div>
+
+<script>
+/* ---------- Question bank ----------
+   [answer, abundance %, [aliases]]  — abundance is an editorial estimate.
+   people:true also accepts a surname on its own. */
+const BANK = [
+  {
+    id: "nobel", people: true,
+    prompt: "Name a Nobel laureate who studied or worked at Imperial",
+    sub: "Including its medical schools, before or after the prize.",
+    answers: [
+      ["Alexander Fleming", 78, ["fleming"]],
+      ["Abdus Salam", 45, []],
+      ["Dennis Gabor", 22, []],
+      ["Ernst Chain", 20, ["ernst boris chain"]],
+      ["Geoffrey Wilkinson", 14, []],
+      ["Peter Higgs", 12, []],
+      ["Patrick Blackett", 10, []],
+      ["Charles Kao", 9, []],
+      ["Derek Barton", 7, []],
+      ["George Paget Thomson", 6, ["g p thomson", "george thomson", "gp thomson"]],
+      ["Rodney Porter", 3, []]
+    ]
+  },
+  {
+    id: "rectors", people: true,
+    prompt: "Name a Rector or President of Imperial",
+    sub: "Anyone who has led the College since 1907.",
+    answers: [
+      ["Alice Gast", 40, []],
+      ["Hugh Brady", 35, []],
+      ["Richard Sykes", 15, []],
+      ["Keith O'Nions", 12, ["o nions", "keith onions"]],
+      ["Henry Tizard", 10, []],
+      ["Roy Anderson", 8, []],
+      ["William Penney", 6, ["bill penney"]],
+      ["Patrick Linstead", 6, []],
+      ["Roderic Hill", 4, ["roderick hill"]],
+      ["Eric Ash", 4, []],
+      ["Ronald Oxburgh", 4, ["ron oxburgh"]],
+      ["Brian Flowers", 3, []],
+      ["Alfred Keogh", 3, []],
+      ["Thomas Holland", 2, []],
+      ["Richard Southwell", 2, []],
+      ["Henry Bovey", 1, []]
+    ]
+  },
+  {
+    id: "depts",
+    prompt: "Name an Imperial department or faculty",
+    sub: "Any faculty, department, school or institute.",
+    answers: [
+      ["Computing", 55, ["doc", "computer science", "cs", "comp sci"]],
+      ["Physics", 50, []],
+      ["Mechanical Engineering", 45, ["mech eng", "mech", "meche", "mechanical"]],
+      ["Chemistry", 42, ["chem"]],
+      ["Mathematics", 40, ["maths", "math"]],
+      ["Medicine", 35, ["faculty of medicine", "school of medicine", "icsm", "med school"]],
+      ["Electrical and Electronic Engineering", 30, ["eee", "ee", "electrical engineering", "electronic engineering", "eie"]],
+      ["Aeronautics", 30, ["aero", "aeronautical engineering", "aeronautical"]],
+      ["Chemical Engineering", 28, ["chem eng", "cheme", "chemeng"]],
+      ["Civil and Environmental Engineering", 26, ["civil engineering", "civils", "civil"]],
+      ["Business School", 25, ["imperial business school", "ibs"]],
+      ["Bioengineering", 22, ["bioeng", "biomedical engineering"]],
+      ["Life Sciences", 20, ["biology", "biosciences", "biochemistry"]],
+      ["Materials", 18, ["materials science", "materials engineering"]],
+      ["Dyson School of Design Engineering", 15, ["design engineering", "dyson", "dyson school"]],
+      ["Earth Science and Engineering", 12, ["ese", "geology", "earth sciences", "earth science"]],
+      ["School of Public Health", 8, ["public health"]],
+      ["National Heart and Lung Institute", 6, ["nhli"]],
+      ["Surgery and Cancer", 4, []],
+      ["Brain Sciences", 3, []],
+      ["Infectious Disease", 3, ["infectious diseases"]],
+      ["Immunology and Inflammation", 2, []],
+      ["Centre for Environmental Policy", 2, ["cep", "environmental policy"]],
+      ["Institute of Clinical Sciences", 1.3, ["clinical sciences"]],
+      ["Centre for Languages, Culture and Communication", 1.2, ["clcc", "languages culture and communication"]],
+      ["Metabolism, Digestion and Reproduction", 0.8, ["mdr"]]
+    ]
+  },
+  {
+    id: "campuses",
+    prompt: "Name an Imperial campus",
+    sub: "Current campuses, plus one that has since closed.",
+    answers: [
+      ["South Kensington", 85, ["south ken", "sk", "south kensington campus"]],
+      ["White City", 45, []],
+      ["Hammersmith", 30, ["hammersmith hospital"]],
+      ["St Mary's", 28, ["st marys", "saint marys", "paddington", "st marys hospital"]],
+      ["Charing Cross", 22, ["charing cross hospital"]],
+      ["Silwood Park", 20, ["silwood"]],
+      ["Chelsea and Westminster", 8, ["chelsea and westminster hospital", "chelwest"]],
+      ["Royal Brompton", 7, ["brompton", "royal brompton hospital"]],
+      ["Wye (former)", 2, ["wye", "wye college", "wye campus"]]
+    ]
+  },
+  {
+    id: "southken",
+    prompt: "Name a building or space on the South Kensington campus",
+    sub: "Labs, landmarks, courtyards and lawns.",
+    answers: [
+      ["Queen's Tower", 70, ["queens tower", "the tower"]],
+      ["Central Library", 45, ["library", "abdus salam library", "the library"]],
+      ["Sherfield Building", 30, ["sherfield"]],
+      ["Blackett Laboratory", 30, ["blackett", "blackett lab", "physics building"]],
+      ["Huxley Building", 25, ["huxley"]],
+      ["Ethos Sports Centre", 25, ["ethos", "gym"]],
+      ["Royal School of Mines building", 22, ["royal school of mines", "rsm", "rsm building"]],
+      ["Queen's Lawn", 20, ["queens lawn"]],
+      ["Beit Quad", 20, ["beit", "union building", "beit quadrangle"]],
+      ["City and Guilds Building", 14, ["city and guilds", "cag"]],
+      ["Skempton Building", 12, ["skempton"]],
+      ["Sir Alexander Fleming Building", 10, ["safb", "alexander fleming building", "fleming building"]],
+      ["Business School building", 10, ["business school"]],
+      ["Electrical Engineering Building", 9, ["eee building", "ee building"]],
+      ["Mechanical Engineering Building", 9, ["mech eng building", "mechanical engineering"]],
+      ["Faculty Building", 8, []],
+      ["Great Hall", 8, []],
+      ["Chemistry Building", 7, ["chemistry"]],
+      ["Bone Building", 6, ["bone"]],
+      ["Roderic Hill Building", 5, ["roderic hill"]],
+      ["Dangoor Plaza", 4, ["dangoor"]],
+      ["Bessemer Building", 3, ["bessemer"]],
+      ["Dalby Court", 3, ["dalby"]],
+      ["ACE Extension", 2, ["ace"]],
+      ["William Penney Laboratory", 1.5, ["william penney", "penney lab", "william penney lab"]]
+    ]
+  },
+  {
+    id: "halls",
+    prompt: "Name an Imperial hall of residence",
+    sub: "Current halls and a few from the past.",
+    answers: [
+      ["Beit Hall", 35, ["beit"]],
+      ["Eastside", 30, []],
+      ["Southside", 30, []],
+      ["Woodward Buildings", 25, ["woodward"]],
+      ["Wilson House", 15, ["wilson"]],
+      ["Kemp Porter", 12, ["kemp porter buildings"]],
+      ["Gabor Hall", 12, ["gabor"]],
+      ["Linstead Hall", 12, ["linstead"]],
+      ["Wilkinson Hall", 10, ["wilkinson"]],
+      ["Xenia", 9, []],
+      ["Falmouth Hall", 7, ["falmouth"]],
+      ["Keogh Hall", 7, ["keogh"]],
+      ["Selkirk Hall", 7, ["selkirk"]],
+      ["Tizard Hall", 7, ["tizard"]],
+      ["Parsons House", 4, ["parsons"]],
+      ["Weeks Hall", 4, ["weeks"]],
+      ["Fisher Hall (former)", 2, ["fisher", "fisher hall"]],
+      ["Bernard Sunley Hall (former)", 1.5, ["bernard sunley", "sunley"]],
+      ["Garden Hall (former)", 1.2, ["garden hall"]],
+      ["Pembridge Hall (former)", 1, ["pembridge", "pembridge hall"]]
+    ]
+  },
+  {
+    id: "nearby",
+    prompt: "Name a landmark within a short walk of South Kensington campus",
+    sub: "Museums, parks, stations and institutions nearby.",
+    answers: [
+      ["Natural History Museum", 70, ["nhm", "natural history"]],
+      ["Science Museum", 65, []],
+      ["Royal Albert Hall", 60, ["albert hall", "rah"]],
+      ["Hyde Park", 55, []],
+      ["Victoria and Albert Museum", 50, ["v and a", "va", "v a", "v and a museum", "victoria and albert"]],
+      ["South Kensington station", 30, ["south kensington", "south ken", "south ken station"]],
+      ["Kensington Gardens", 25, []],
+      ["Royal College of Music", 25, ["rcm"]],
+      ["Harrods", 22, []],
+      ["Royal College of Art", 20, ["rca"]],
+      ["Exhibition Road", 20, []],
+      ["Albert Memorial", 18, []],
+      ["Serpentine", 12, ["serpentine gallery", "serpentine lake", "serpentine galleries"]],
+      ["Kensington Palace", 12, []],
+      ["Gloucester Road station", 10, ["gloucester road"]],
+      ["Knightsbridge", 10, ["knightsbridge station"]],
+      ["Brompton Oratory", 6, ["london oratory", "the oratory"]],
+      ["Royal Geographical Society", 5, ["rgs"]],
+      ["Holy Trinity Brompton", 3, ["htb"]],
+      ["Institut Français", 2.5, ["institut francais", "cine lumiere", "french institute"]],
+      ["Ismaili Centre", 2, ["ismaili center"]],
+      ["Goethe-Institut", 1.5, ["goethe institut", "goethe institute"]],
+      ["Baden-Powell House", 1, ["baden powell house", "baden powell"]]
+    ]
+  },
+  {
+    id: "merged",
+    prompt: "Name an institution that founded or merged into Imperial",
+    sub: "Founding colleges, medical schools and later mergers.",
+    answers: [
+      ["Royal College of Science", 45, ["rcs"]],
+      ["Royal School of Mines", 45, ["rsm"]],
+      ["City and Guilds College", 40, ["city and guilds", "city guilds", "c and g"]],
+      ["St Mary's Hospital Medical School", 30, ["st marys", "st marys medical school", "st marys hospital"]],
+      ["Charing Cross and Westminster Medical School", 12, ["charing cross and westminster"]],
+      ["National Heart and Lung Institute", 10, ["nhli"]],
+      ["Royal Postgraduate Medical School", 8, ["rpms", "hammersmith hospital medical school"]],
+      ["Wye College", 8, ["wye"]],
+      ["Charing Cross Hospital Medical School", 5, ["charing cross", "charing cross medical school"]],
+      ["Westminster Medical School", 5, ["westminster hospital medical school"]],
+      ["Royal College of Chemistry", 3, []],
+      ["Normal School of Science", 2.5, ["normal school"]],
+      ["Government School of Mines", 2, ["school of mines", "government school of mines and science applied to the arts"]],
+      ["Kennedy Institute of Rheumatology", 1.5, ["kennedy institute", "kennedy"]]
+    ]
+  },
+  {
+    id: "studentlife",
+    prompt: "Name something from Imperial student life",
+    sub: "Union venues, student media, big events, CUs or mascots.",
+    answers: [
+      ["Felix", 40, ["felix newspaper"]],
+      ["Imperial College Union", 35, ["icu", "the union", "student union", "students union"]],
+      ["Union Bar", 20, []],
+      ["Metric", 18, []],
+      ["Varsity", 18, []],
+      ["Freshers' Fair", 15, ["freshers fair", "freshers", "freshers week"]],
+      ["IC Radio", 12, ["icradio", "radio"]],
+      ["h-bar", 10, ["hbar", "h bar"]],
+      ["RAG", 8, ["rag week", "raising and giving"]],
+      ["RCSU", 8, ["royal college of science union"]],
+      ["CGCU", 7, ["city and guilds college union"]],
+      ["FiveSixEight", 6, ["568", "five six eight"]],
+      ["Reynolds", 6, ["reynolds bar"]],
+      ["STOIC", 6, ["stoic tv", "student television of imperial college"]],
+      ["RSMU", 6, ["royal school of mines union"]],
+      ["Summer Ball", 6, ["summer ball"]],
+      ["ICSMSU", 3, ["icsm su", "medics union"]],
+      ["Spanner and Bolt", 3, ["spanner", "bolt"]],
+      ["Morphy Day", 2, ["morphy"]],
+      ["Theta", 1.6, []],
+      ["Davy", 1.2, ["davy lamp"]]
+    ]
+  },
+  {
+    id: "people", people: true,
+    prompt: "Name a famous person who studied or worked at Imperial",
+    sub: "Alumni, academics and researchers from any era.",
+    answers: [
+      ["Alexander Fleming", 60, []],
+      ["Brian May", 55, []],
+      ["H. G. Wells", 30, ["hg wells", "herbert george wells"]],
+      ["Thomas Henry Huxley", 25, ["thomas huxley", "t h huxley"]],
+      ["Abdus Salam", 25, []],
+      ["Neil Ferguson", 22, ["professor lockdown"]],
+      ["Robert Winston", 20, ["robert winston"]],
+      ["Peter Higgs", 14, []],
+      ["Dennis Gabor", 12, []],
+      ["Rajiv Gandhi", 10, []],
+      ["Ernst Chain", 10, []],
+      ["Maggie Aderin-Pocock", 9, ["maggie aderin pocock", "aderin pocock", "maggie aderinpocock"]],
+      ["Ara Darzi", 9, []],
+      ["Roger Bannister", 8, []],
+      ["Patrick Blackett", 8, []],
+      ["Tom Kibble", 6, ["thomas kibble"]],
+      ["John Pendry", 5, []],
+      ["William Henry Perkin", 4, ["william perkin"]],
+      ["Almroth Wright", 3, []],
+      ["Joanna Haigh", 3, []],
+      ["Christl Donnelly", 3, []],
+      ["Molly Stevens", 3, []],
+      ["Azra Ghani", 2.5, []],
+      ["August Wilhelm von Hofmann", 2, ["august hofmann", "von hofmann", "hofmann"]],
+      ["Narinder Singh Kapany", 1.5, ["narinder kapany"]],
+      ["Fay Dowker", 1.2, []]
+    ]
+  },
+  {
+    id: "namesakes", people: true,
+    prompt: "Name a person with an Imperial building, hall or space named after them",
+    sub: "Labs, halls, libraries, lecture theatres and institutes.",
+    answers: [
+      ["Patrick Blackett", 40, ["blackett laboratory"]],
+      ["Thomas Huxley", 30, ["thomas henry huxley", "huxley building"]],
+      ["Alexander Fleming", 30, ["sir alexander fleming building"]],
+      ["Abdus Salam", 20, ["abdus salam library"]],
+      ["Lord Sherfield", 15, ["sherfield building", "roger makins"]],
+      ["James Dyson", 14, ["dyson school"]],
+      ["Henry Tizard", 12, ["tizard hall"]],
+      ["Dennis Gabor", 12, ["gabor hall"]],
+      ["Patrick Linstead", 10, ["linstead hall"]],
+      ["Geoffrey Wilkinson", 10, ["wilkinson hall"]],
+      ["Alfred Beit", 10, ["otto beit", "beit"]],
+      ["Alec Skempton", 7, ["skempton building"]],
+      ["Alfred Keogh", 5, ["keogh hall"]],
+      ["William Penney", 5, ["william penney laboratory"]],
+      ["Roderic Hill", 4, ["roderick hill"]],
+      ["Henry Bessemer", 4, ["bessemer building"]],
+      ["William Bone", 3, ["bone building"]],
+      ["Michael Uren", 3, ["michael uren hub", "uren hub"]],
+      ["Jeremy Grantham", 3, ["grantham institute"]],
+      ["Charles Clore", 2, ["clore lecture theatre"]],
+      ["Paul Hamlyn", 1.5, ["hamlyn centre"]],
+      ["William Dalby", 1, ["dalby court"]]
+    ]
+  },
+  {
+    id: "sports",
+    prompt: "Name a sport with a club at Imperial College Union",
+    sub: "Any sport the Union runs a club or team for.",
+    answers: [
+      ["Football", 40, ["soccer", "football club"]],
+      ["Rowing", 35, ["boat club", "icbc", "rowing club"]],
+      ["Rugby", 35, ["rugby union", "rugby club"]],
+      ["Hockey", 25, ["field hockey"]],
+      ["Basketball", 20, []],
+      ["Netball", 18, []],
+      ["Cricket", 18, []],
+      ["Tennis", 18, ["lawn tennis"]],
+      ["Badminton", 15, []],
+      ["Swimming", 15, ["swim", "swimming club"]],
+      ["Squash", 10, []],
+      ["Climbing", 10, ["bouldering", "rock climbing"]],
+      ["Skiing", 9, ["ski", "ski and snowboard", "snowboarding", "snowsports"]],
+      ["Fencing", 8, []],
+      ["Boxing", 8, []],
+      ["Cycling", 8, ["cycling club"]],
+      ["Athletics", 8, ["track and field", "running"]],
+      ["Table Tennis", 7, ["ping pong"]],
+      ["Volleyball", 7, []],
+      ["Water Polo", 6, []],
+      ["Sailing", 6, []],
+      ["Judo", 5, []],
+      ["Karate", 5, []],
+      ["Golf", 5, []],
+      ["Ultimate Frisbee", 5, ["ultimate", "frisbee"]],
+      ["Cross Country", 5, ["xc"]],
+      ["Taekwondo", 4, ["tae kwon do"]],
+      ["Mountaineering", 4, ["hillwalking"]],
+      ["Lacrosse", 4, []],
+      ["American Football", 4, ["imperial immortals", "immortals"]],
+      ["Gliding", 3, ["gliding club"]],
+      ["Snooker", 3, ["pool", "snooker and pool"]],
+      ["Archery", 3, []],
+      ["Canoeing", 2, ["canoe", "kayak", "kayaking"]],
+      ["Triathlon", 2, []],
+      ["Rifle and Pistol", 1.4, ["shooting", "rifle", "pistol"]],
+      ["Equestrian", 1.2, ["horse riding", "riding"]]
+    ]
+  },
+  {
+    id: "societies",
+    prompt: "Name a non-sport club or society at Imperial",
+    sub: "Arts, faith, culture, academic, tech or just for fun.",
+    answers: [
+      ["Debating", 15, ["debating society", "debate"]],
+      ["Chess", 15, ["chess club"]],
+      ["Drama", 14, ["dramsoc", "drama society", "theatre"]],
+      ["Musical Theatre", 10, ["mtsoc", "musical theatre society"]],
+      ["Choir", 10, ["chamber choir", "choral"]],
+      ["Symphony Orchestra", 9, ["orchestra", "icso"]],
+      ["Investment Society", 9, ["investment", "icis"]],
+      ["Photography", 8, ["photosoc", "photo society"]],
+      ["Christian Union", 8, ["cu"]],
+      ["Islamic Society", 8, ["isoc", "islamic"]],
+      ["Finance Society", 8, ["finsoc", "finance"]],
+      ["Chinese Society", 7, ["chinese", "chinese students"]],
+      ["DoCSoc", 7, ["computing society"]],
+      ["Imperial Cinema", 6, ["cinema", "film society", "film"]],
+      ["Indian Society", 6, ["indian", "indsoc"]],
+      ["Robotics", 6, ["robotics society", "robosoc"]],
+      ["Formula Student", 6, ["imperial racing", "fs"]],
+      ["Dance", 6, ["dance club", "dancesoc"]],
+      ["Gaming", 5, ["esports", "gaming society", "video games"]],
+      ["Consulting Society", 5, ["consulting"]],
+      ["Entrepreneurs", 5, ["entrepreneurs society", "entrepreneurship", "enterprise society"]],
+      ["Racing Green", 5, ["imperial racing green"]],
+      ["Big Band", 4, ["jazz big band"]],
+      ["Jazz and Rock", 4, ["jazzrock", "jazz rock"]],
+      ["Jewish Society", 4, ["jsoc", "jewish"]],
+      ["Hindu Society", 4, ["hindu", "hindusoc"]],
+      ["Malaysian Society", 4, ["malaysian"]],
+      ["Rocketry", 4, ["rocketry society", "iclr"]],
+      ["Anime", 4, ["anime society", "animesoc", "manga"]],
+      ["Astronomy", 4, ["astrosoc", "astronomy society"]],
+      ["Sikh Society", 3, ["sikh", "sikhsoc"]],
+      ["Singapore Society", 3, ["singapore", "singaporean society"]],
+      ["Hong Kong Society", 3, ["hong kong", "hksoc"]],
+      ["Wine Tasting", 3, ["wine society", "wine"]],
+      ["Baking", 3, ["baking society", "bakesoc"]],
+      ["Korean Society", 2, ["korean"]],
+      ["Model United Nations", 2, ["model un", "mun"]],
+      ["Engineers Without Borders", 1.5, ["ewb"]]
+    ]
+  },
+  {
+    id: "degrees",
+    prompt: "Name a degree, qualification or award you can earn at Imperial",
+    sub: "Abbreviations and Imperial's own associateships count.",
+    answers: [
+      ["BSc", 40, ["bachelor of science"]],
+      ["MEng", 40, ["master of engineering"]],
+      ["PhD", 40, ["doctorate", "doctor of philosophy"]],
+      ["MSc", 35, ["master of science", "masters"]],
+      ["MBBS", 22, ["bachelor of medicine", "medicine degree"]],
+      ["MSci", 20, ["integrated masters"]],
+      ["BEng", 15, ["bachelor of engineering"]],
+      ["MBA", 15, ["master of business administration", "executive mba"]],
+      ["MRes", 10, ["master of research"]],
+      ["iBSc", 6, ["intercalated bsc", "intercalated degree"]],
+      ["MPhil", 5, ["master of philosophy"]],
+      ["MPH", 4, ["master of public health"]],
+      ["DIC", 4, ["diploma of imperial college"]],
+      ["ARCS", 4, ["associateship of the royal college of science", "associate of the royal college of science"]],
+      ["ACGI", 3, ["associateship of the city and guilds of london institute", "associate of the city and guilds institute"]],
+      ["EngD", 3, ["doctor of engineering"]],
+      ["MD(Res)", 3, ["md res", "mdres", "doctor of medicine"]],
+      ["PGCert", 3, ["postgraduate certificate", "pg cert"]],
+      ["PGDip", 2.5, ["postgraduate diploma", "pg dip"]],
+      ["ARSM", 2, ["associateship of the royal school of mines", "associate of the royal school of mines"]],
+      ["Honorary degree", 1.5, ["honorary doctorate", "honorary fellowship"]]
+    ]
+  },
+  {
+    id: "hospitals",
+    prompt: "Name a hospital where Imperial medical students train",
+    sub: "Teaching hospitals and placement sites across London.",
+    answers: [
+      ["St Mary's", 45, ["st marys", "st marys hospital", "saint marys"]],
+      ["Charing Cross", 40, ["charing cross hospital"]],
+      ["Hammersmith", 40, ["hammersmith hospital"]],
+      ["Chelsea and Westminster", 25, ["chelsea and westminster hospital", "chelwest"]],
+      ["Royal Brompton", 15, ["royal brompton hospital", "brompton"]],
+      ["Royal Marsden", 10, ["marsden", "royal marsden hospital"]],
+      ["Queen Charlotte's and Chelsea", 8, ["queen charlottes", "queen charlottes and chelsea"]],
+      ["Harefield", 6, ["harefield hospital"]],
+      ["West Middlesex", 6, ["west middlesex hospital", "west mid"]],
+      ["Northwick Park", 6, ["northwick park hospital"]],
+      ["Hillingdon", 4, ["hillingdon hospital"]],
+      ["Ealing", 3, ["ealing hospital"]],
+      ["Western Eye", 3, ["western eye hospital"]],
+      ["Central Middlesex", 2, ["central middlesex hospital"]],
+      ["St Mark's", 1.5, ["st marks", "st marks hospital"]]
+    ]
+  },
+  {
+    id: "discoveries",
+    prompt: "Name a discovery or invention linked to Imperial researchers",
+    sub: "From its labs, its medical schools, or its people.",
+    answers: [
+      ["Penicillin", 70, []],
+      ["Holography", 20, ["hologram", "holograms"]],
+      ["COVID-19 modelling", 15, ["covid modelling", "report 9", "pandemic modelling", "lockdown modelling"]],
+      ["Higgs mechanism", 12, ["higgs boson", "higgs field"]],
+      ["Fibre optics", 12, ["fiber optics", "optical fibre", "optical fiber", "fibre optic"]],
+      ["Electroweak theory", 10, ["electroweak unification", "electroweak"]],
+      ["Invisibility cloak", 8, ["metamaterials", "metamaterial", "perfect lens"]],
+      ["Lysozyme", 5, []],
+      ["Mauveine", 4, ["mauve", "first synthetic dye", "synthetic dye"]],
+      ["Ferrocene structure", 3, ["ferrocene", "sandwich compounds"]],
+      ["Wilkinson's catalyst", 3, ["wilkinsons catalyst"]],
+      ["Self-amplifying RNA vaccine", 3, ["sarna", "self amplifying rna", "rna vaccine"]],
+      ["Conformational analysis", 2, []],
+      ["Antibody structure", 1.8, ["antibodies", "structure of antibodies"]]
+    ]
+  },
+  {
+    id: "institutes",
+    prompt: "Name an Imperial research institute or centre",
+    sub: "Global institutes, research centres and partner labs.",
+    answers: [
+      ["Grantham Institute", 20, ["grantham"]],
+      ["Data Science Institute", 15, ["dsi"]],
+      ["Institute of Global Health Innovation", 8, ["ighi", "global health innovation"]],
+      ["Jameel Institute", 8, ["jameel", "abdul latif jameel institute"]],
+      ["MRC Centre for Global Infectious Disease Analysis", 8, ["mrc gida", "gida"]],
+      ["Hamlyn Centre", 7, ["hamlyn"]],
+      ["Energy Futures Lab", 6, ["efl", "energy futures"]],
+      ["Francis Crick Institute", 6, ["crick", "francis crick"]],
+      ["UK Dementia Research Institute", 5, ["dementia research institute", "uk dri", "dri"]],
+      ["Enterprise Lab", 5, ["imperial enterprise lab"]],
+      ["Institute of Infection", 4, []],
+      ["Centre for Synthetic Biology", 4, ["synthetic biology"]],
+      ["I-X", 4, ["ix", "imperial x"]],
+      ["MRC Laboratory of Medical Sciences", 4, ["lms", "mrc lms"]],
+      ["Institute for Molecular Science and Engineering", 3, ["imse"]],
+      ["Institute for Security Science and Technology", 3, ["isst"]],
+      ["Centre for Bio-Inspired Technology", 2, ["bio inspired technology", "cbit"]],
+      ["Sustainable Gas Institute", 2, ["sgi"]],
+      ["Centre for Neurotechnology", 2, ["neurotechnology"]],
+      ["Imperial Centre for Translational and Experimental Medicine", 1.5, ["ictem"]]
+    ]
+  },
+  {
+    id: "engineering",
+    prompt: "Name a branch of engineering",
+    sub: "Imperial teaches plenty of them. Any recognised branch counts.",
+    answers: [
+      ["Mechanical engineering", 50, ["mech"]],
+      ["Civil engineering", 45, []],
+      ["Electrical engineering", 45, []],
+      ["Chemical engineering", 35, []],
+      ["Aerospace engineering", 25, []],
+      ["Software engineering", 25, []],
+      ["Aeronautical engineering", 20, ["aeronautics"]],
+      ["Electronic engineering", 20, ["electronics"]],
+      ["Computer engineering", 15, []],
+      ["Biomedical engineering", 15, ["bioengineering", "biomedical"]],
+      ["Structural engineering", 12, []],
+      ["Materials engineering", 10, ["materials science"]],
+      ["Environmental engineering", 10, []],
+      ["Nuclear engineering", 8, []],
+      ["Design engineering", 8, []],
+      ["Mining engineering", 6, []],
+      ["Marine engineering", 6, ["naval architecture"]],
+      ["Petroleum engineering", 5, []],
+      ["Systems engineering", 5, []],
+      ["Robotics engineering", 5, ["robotics"]],
+      ["Geotechnical engineering", 4, []],
+      ["Control engineering", 4, ["control systems"]],
+      ["Mechatronics", 4, ["mechatronic engineering"]],
+      ["Industrial engineering", 4, []],
+      ["Manufacturing engineering", 4, []],
+      ["Automotive engineering", 4, []],
+      ["Genetic engineering", 3, []],
+      ["Acoustic engineering", 2, ["acoustics"]],
+      ["Agricultural engineering", 2, []],
+      ["Telecommunications engineering", 2, ["telecoms", "telecommunications"]],
+      ["Biochemical engineering", 2, []],
+      ["Fire engineering", 1, ["fire safety engineering"]]
+    ]
+  },
+  {
+    id: "hydepark",
+    prompt: "Name something in Hyde Park or Kensington Gardens",
+    sub: "The campus's back garden: monuments, water, gates and events.",
+    answers: [
+      ["Serpentine", 50, ["serpentine lake"]],
+      ["Speakers' Corner", 35, ["speakers corner"]],
+      ["Winter Wonderland", 30, ["hyde park winter wonderland"]],
+      ["Kensington Palace", 25, []],
+      ["Albert Memorial", 22, []],
+      ["Diana Memorial Fountain", 20, ["diana fountain", "princess diana memorial fountain"]],
+      ["Marble Arch", 18, []],
+      ["Hyde Park Corner", 15, []],
+      ["Serpentine Gallery", 12, ["serpentine galleries", "serpentine pavilion"]],
+      ["Peter Pan statue", 12, ["peter pan"]],
+      ["Wellington Arch", 10, []],
+      ["BST Hyde Park", 10, ["bst", "british summer time"]],
+      ["Italian Gardens", 8, []],
+      ["Round Pond", 7, []],
+      ["Serpentine Lido", 7, ["lido"]],
+      ["Diana Memorial Playground", 6, ["diana playground", "pirate ship playground"]],
+      ["Rotten Row", 5, []],
+      ["Apsley House", 5, []],
+      ["Long Water", 4, []],
+      ["Rose Garden", 4, []],
+      ["7 July Memorial", 3, ["77 memorial", "july 7 memorial", "7 7 memorial"]],
+      ["Bandstand", 3, []],
+      ["Serpentine Bridge", 3, []],
+      ["Holocaust Memorial", 2, []],
+      ["Achilles statue", 2, ["achilles"]],
+      ["Reformers' Tree", 1.5, ["reformers tree"]],
+      ["Pet cemetery", 1.2, ["hyde park pet cemetery", "dog cemetery"]]
+    ]
+  },
+  {
+    id: "londonunis",
+    prompt: "Name a London university that isn't Imperial",
+    sub: "Universities, specialist colleges and institutes in London.",
+    answers: [
+      ["UCL", 70, ["university college london"]],
+      ["King's College London", 55, ["kcl", "kings"]],
+      ["LSE", 50, ["london school of economics"]],
+      ["Queen Mary", 30, ["qmul", "queen mary university of london"]],
+      ["City St George's", 20, ["city", "city university", "st georges", "city st georges university of london"]],
+      ["SOAS", 18, ["school of oriental and african studies"]],
+      ["Birkbeck", 15, []],
+      ["Goldsmiths", 15, []],
+      ["Royal Holloway", 15, ["rhul"]],
+      ["University of Westminster", 15, []],
+      ["University of the Arts London", 12, ["ual", "central saint martins", "central st martins", "csm", "london college of fashion", "chelsea college of arts", "camberwell"]],
+      ["Brunel", 12, ["brunel university"]],
+      ["Royal College of Art", 10, ["rca"]],
+      ["Greenwich", 10, ["university of greenwich"]],
+      ["Kingston", 10, ["kingston university"]],
+      ["Middlesex", 8, ["middlesex university"]],
+      ["LSHTM", 8, ["london school of hygiene and tropical medicine"]],
+      ["Royal College of Music", 8, ["rcm"]],
+      ["London Business School", 8, ["lbs"]],
+      ["Roehampton", 6, []],
+      ["Royal Veterinary College", 6, ["rvc"]],
+      ["Royal Academy of Music", 6, ["ram"]],
+      ["London South Bank", 6, ["lsbu", "south bank"]],
+      ["London Metropolitan", 5, ["london met"]],
+      ["Courtauld", 4, ["courtauld institute"]],
+      ["Guildhall School of Music and Drama", 4, ["guildhall"]],
+      ["University of East London", 4, ["uel", "east london"]],
+      ["University of West London", 3, ["uwl", "west london"]],
+      ["Trinity Laban", 2, []],
+      ["Regent's University", 2, ["regents"]],
+      ["Institute of Cancer Research", 1.5, ["icr"]],
+      ["Royal Central School of Speech and Drama", 1.2, ["central school of speech and drama"]]
+    ]
+  },
+  {
+    id: "russell",
+    prompt: "Name a Russell Group university",
+    sub: "All 24 members count, Imperial included.",
+    answers: [
+      ["Oxford", 70, ["university of oxford"]],
+      ["Cambridge", 70, ["university of cambridge"]],
+      ["UCL", 45, ["university college london"]],
+      ["Imperial", 45, ["imperial college london", "imperial college", "icl"]],
+      ["LSE", 35, ["london school of economics"]],
+      ["King's College London", 35, ["kcl", "kings"]],
+      ["Manchester", 35, []],
+      ["Edinburgh", 30, []],
+      ["Bristol", 25, []],
+      ["Warwick", 25, []],
+      ["Durham", 25, []],
+      ["Birmingham", 20, []],
+      ["Leeds", 20, []],
+      ["Nottingham", 18, []],
+      ["Glasgow", 18, []],
+      ["Southampton", 15, []],
+      ["Sheffield", 15, []],
+      ["Exeter", 14, []],
+      ["York", 14, []],
+      ["Liverpool", 14, []],
+      ["Newcastle", 12, []],
+      ["Cardiff", 10, []],
+      ["Queen Mary", 8, ["qmul", "queen mary university of london"]],
+      ["Queen's University Belfast", 6, ["qub", "belfast", "queens belfast"]]
+    ]
+  }
+];
+
+/* ---------- Matching ---------- */
+const STOP = new Set(["the","of","sir","lord","dame","prof","professor","dr","department","dept","building","hall","halls","house","laboratory","lab","labs","campus","imperial","college","london","ic","and","a","an","at","in","station","tube","underground","former","centre","center","school","university","uni","engineering"]);
+function norm(s) {
+  const words = String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/&/g, " and ").replace(/['’`]/g, "").replace(/[^a-z0-9]+/g, " ")
+    .split(" ").filter(Boolean);
+  const kept = words.filter(w => !STOP.has(w));
+  return (kept.length ? kept : words).join(" ");
+}
+function lev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j), cur = new Array(n + 1);
+  for (let i = 1; i <= m; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    [prev, cur] = [cur, prev];
+  }
+  return prev[n];
+}
+const CATS = BANK.map(c => {
+  const answers = c.answers.map(([name, pct, aliases]) => {
+    const keys = new Set([norm(name), ...aliases.map(norm)]);
+    if (c.people) { const parts = norm(name).split(" "); const last = parts[parts.length - 1]; if (last.length >= 3) keys.add(last); }
+    keys.delete("");
+    return { name, pct, keys: [...keys] };
+  });
+  let rarest = 0; answers.forEach((a, i) => { if (a.pct < answers[rarest].pct) rarest = i; });
+  return { ...c, answers, rarest };
+});
+function match(cat, text) {
+  const g = norm(text);
+  if (!g) return null;
+  let best = null;
+  cat.answers.forEach((a, i) => {
+    for (const k of a.keys) {
+      if (k === g) { if (!best || best.d > 0) best = { idx: i, d: 0 }; return; }
+      const allow = k.length <= 4 ? 0 : k.length <= 8 ? 1 : 2;
+      if (Math.abs(k.length - g.length) > allow) continue;
+      const d = lev(k, g);
+      if (d <= allow && (!best || d < best.d)) best = { idx: i, d };
+    }
+  });
+  return best;
+}
+
+/* ---------- Scoring ---------- */
+const POINTS = [0, 1, 2, 4, 7, 15];
+const TIER_NAME = ["Miss", "Abundant", "Common", "Scarce", "Rare", "Rarest"];
+const EMOJI = ["⬛", "⬜", "🟩", "🟧", "🟪", "💎"];
+function tierOf(cat, i) {
+  if (i === cat.rarest) return 5;
+  const p = cat.answers[i].pct;
+  return p >= 30 ? 1 : p >= 12 ? 2 : p >= 5 ? 3 : 4;
+}
+const GUESSES = 5;
+const fmtPct = p => p < 2 ? p.toFixed(1) + "%" : Math.round(p) + "%";
+function sym(name) {
+  const words = norm(name).split(" ").filter(Boolean);
+  if (!words.length) return "?";
+  if (words.length === 1) return words[0][0].toUpperCase() + (words[0][1] || "");
+  return words[0][0].toUpperCase() + words[1][0];
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- Daily seed ---------- */
+function dateKey(d = new Date()) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+const EPOCH = new Date(2026, 10, 18);
+function dayNumber() { const t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((t - EPOCH) / 864e5) + 1; }
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function dailyRounds() {
+  const r = rng(dayNumber() * 7919 + 17);
+  const idx = CATS.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  return idx.slice(0, 3);
+}
+
+/* ---------- Storage (best effort) ---------- */
+const store = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+/* ---------- State ---------- */
+let mode = "daily";
+let game;           // { rounds:[catIdx], r, guesses:[[{t, idx}]], over:[bool] }
+let unl = { total: 0, played: 0, last: -1 };
+const main = document.getElementById("main");
+
+function newDaily() {
+  const saved = store.get("it-daily");
+  if (saved && saved.date === dateKey()) return saved;
+  return { date: dateKey(), rounds: dailyRounds(), r: 0, guesses: [[], [], []], over: [false, false, false], finished: false };
+}
+function newUnlimitedRound() {
+  let c; do { c = Math.floor(Math.random() * CATS.length); } while (c === unl.last && CATS.length > 1);
+  unl.last = c;
+  return { rounds: [c], r: 0, guesses: [[]], over: [false] };
+}
+function saveDaily() { if (mode === "daily") store.set("it-daily", game); }
+
+function roundScore(cat, gs) { return gs.reduce((s, g) => s + (g.idx >= 0 ? POINTS[tierOf(cat, g.idx)] : 0), 0); }
+function roundEmoji(cat, gs) { return gs.map(g => EMOJI[g.idx >= 0 ? tierOf(cat, g.idx) : 0]).join(""); }
+
+/* ---------- Rendering ---------- */
+function tileHTML(cat, g, i) {
+  if (!g) return `<div class="tile" aria-label="Guess ${i + 1}, unused"></div>`;
+  if (g.idx < 0) return `<div class="tile filled miss" aria-label="Miss: ${esc(g.t)}"><span class="n">0</span><span class="sym">✕</span><span class="nm">${esc(g.t)}</span></div>`;
+  const a = cat.answers[g.idx], t = tierOf(cat, g.idx);
+  return `<div class="tile filled t${t}" aria-label="${esc(a.name)}, ${TIER_NAME[t]}, ${fmtPct(a.pct)}, ${POINTS[t]} points"><span class="n">+${POINTS[t]}</span><span class="p">${fmtPct(a.pct)}</span><span class="sym">${esc(sym(a.name))}</span><span class="nm">${esc(a.name)}</span></div>`;
+}
+const legend = `<div class="legend" aria-hidden="true">${[1,2,3,4,5].map(t => `<span><i style="background:var(--t${t})"></i>${TIER_NAME[t]} +${POINTS[t]}</span>`).join("")}</div>`;
+
+function render(feedback = "", fbClass = "") {
+  if (mode === "daily" && game.finished) return renderSummary();
+  const ci = game.rounds[game.r], cat = CATS[ci], gs = game.guesses[game.r], over = game.over[game.r];
+  const left = GUESSES - gs.length;
+  const rs = roundScore(cat, gs);
+  const eyebrowL = mode === "daily" ? `Daily #${dayNumber()} · Prompt <b>${game.r + 1}</b> of ${game.rounds.length}` : `Unlimited · Prompt <b>${unl.played + 1}</b> · ${unl.total} pts banked`;
+  const eyebrowR = `${cat.answers.length} accepted answers`;
+  let html = `<section class="card" aria-labelledby="prompt">
+    <div class="eyebrow"><span>${eyebrowL}</span><span>${eyebrowR}</span></div>
+    <h2 class="prompt" id="prompt">${esc(cat.prompt)}</h2>
+    <p class="sub">${esc(cat.sub)}</p>
+    <form class="guess" id="guess-form" autocomplete="off">
+      <input id="guess-input" name="guess" type="text" maxlength="80" placeholder="${over ? "Round over" : "Type an answer…"}" ${over ? "disabled" : ""} aria-label="Your answer" autocapitalize="off" spellcheck="false">
+      <button class="btn" type="submit" ${over ? "disabled" : ""}>Guess</button>
+    </form>
+    <div class="feedback ${fbClass}" id="feedback" aria-live="polite">${feedback || (over ? "" : `${left} guess${left === 1 ? "" : "es"} left. Go obscure.`)}</div>
+    <div class="slots">${Array.from({ length: GUESSES }, (_, i) => tileHTML(cat, gs[i], i)).join("")}</div>
+    <div class="scoreline">
+      <div class="score">${rs}<span>pts this prompt</span></div>
+      <div class="actions">${over ? nextButton() : `<button type="button" class="btn ghost" id="giveup">Reveal answers</button>`}</div>
+    </div>
+    ${legend}
+  </section>`;
+  if (over) html += revealHTML(cat, gs);
+  main.innerHTML = html;
+  const inp = document.getElementById("guess-input");
+  document.getElementById("guess-form").addEventListener("submit", e => { e.preventDefault(); submitGuess(inp.value); });
+  const gu = document.getElementById("giveup"); if (gu) gu.addEventListener("click", endRound);
+  const nx = document.getElementById("next"); if (nx) nx.addEventListener("click", nextRound);
+  if (!over) inp.focus({ preventScroll: true });
+}
+function nextButton() {
+  if (mode === "unlimited") return `<button type="button" class="btn accent" id="next">Next prompt</button>`;
+  return `<button type="button" class="btn accent" id="next">${game.r < game.rounds.length - 1 ? "Next prompt" : "See today's results"}</button>`;
+}
+function revealHTML(cat, gs) {
+  const found = new Set(gs.filter(g => g.idx >= 0).map(g => g.idx));
+  const gem = cat.answers[cat.rarest];
+  const gotGem = found.has(cat.rarest);
+  const max = Math.max(...cat.answers.map(a => a.pct));
+  const rows = cat.answers.map((a, i) => ({ a, i })).sort((x, y) => y.a.pct - x.a.pct).map(({ a, i }) => {
+    const t = tierOf(cat, i);
+    const w = Math.max(3, Math.sqrt(a.pct / max) * 100);
+    return `<div class="row${found.has(i) ? " found" : ""}"><span class="an">${esc(a.name)}</span><span class="bar" aria-hidden="true"><b style="width:${w.toFixed(1)}%;background:var(--t${t})"></b></span><span class="pc">${fmtPct(a.pct)}</span></div>`;
+  }).join("");
+  return `<section class="card reveal" aria-labelledby="reveal-h">
+    <div class="gemcall">
+      ${tileHTML(cat, { idx: cat.rarest }, 0)}
+      <div><p class="lbl">${gotGem ? "You found the rarest answer" : "The rarest answer"}</p><p class="gname">${esc(gem.name)}</p><p class="gnote">Only about ${fmtPct(gem.pct)} of players would think of it.</p></div>
+    </div>
+    <h2 id="reveal-h">Every accepted answer</h2>
+    <div>
+      <div class="chart-head"><span>Answer</span><span>Abundance</span><span>Players</span></div>
+      <div class="chart">${rows}</div>
+    </div>
+    <p class="fineprint">You found ${found.size} of ${cat.answers.length}. Bars use a square-root scale so the rare answers stay visible.</p>
+  </section>`;
+}
+
+function submitGuess(raw) {
+  const text = raw.trim();
+  const cat = CATS[game.rounds[game.r]], gs = game.guesses[game.r];
+  if (!text || game.over[game.r]) return;
+  const m = match(cat, text);
+  if (m && gs.some(g => g.idx === m.idx)) { render(`You already have ${esc(cat.answers[m.idx].name)}. That one's free, try another.`); return; }
+  gs.push({ t: text.slice(0, 40), idx: m ? m.idx : -1 });
+  let fb, cls = "";
+  if (!m) {
+    fb = `“${esc(text)}” isn't on the list.`;
+  } else {
+    const a = cat.answers[m.idx], t = tierOf(cat, m.idx);
+    const corrected = norm(text) !== norm(a.name) ? ` (read as ${esc(a.name)})` : "";
+    if (t === 5) { fb = `Rarest answer! ${esc(a.name)}, ${fmtPct(a.pct)} of players. +${POINTS[t]}`; cls = "gem"; }
+    else { fb = `${TIER_NAME[t]}${corrected}: ${fmtPct(a.pct)} of players. +${POINTS[t]}`; cls = "hit"; }
+  }
+  const done = gs.length >= GUESSES || (m && m.idx === cat.rarest);
+  if (done) { game.over[game.r] = true; if (mode === "unlimited") { unl.total += roundScore(cat, gs); } }
+  saveDaily();
+  render(fb, cls);
+  if (done) setTimeout(() => { const r = document.getElementById("reveal-h"); if (r && r.scrollIntoView && window.innerHeight < 900) r.closest(".card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }, 350);
+}
+function endRound() {
+  const cat = CATS[game.rounds[game.r]];
+  game.over[game.r] = true;
+  if (mode === "unlimited") unl.total += roundScore(cat, game.guesses[game.r]);
+  saveDaily();
+  render();
+}
+function nextRound() {
+  if (mode === "unlimited") { unl.played++; game = newUnlimitedRound(); render(); window.scrollTo({ top: 0 }); return; }
+  if (game.r < game.rounds.length - 1) { game.r++; saveDaily(); render(); window.scrollTo({ top: 0 }); return; }
+  finishDaily();
+}
+function finishDaily() {
+  game.finished = true;
+  const stats = store.get("it-stats") || { last: null, streak: 0, best: 0, played: 0, top: 0 };
+  if (stats.last !== game.date) {
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    stats.streak = stats.last === dateKey(y) ? stats.streak + 1 : 1;
+    stats.best = Math.max(stats.best, stats.streak);
+    stats.played++;
+    stats.top = Math.max(stats.top || 0, dailyTotal());
+    stats.last = game.date;
+    store.set("it-stats", stats);
+  }
+  saveDaily();
+  render();
+  window.scrollTo({ top: 0 });
+}
+function dailyTotal() { return game.rounds.reduce((s, ci, r) => s + roundScore(CATS[ci], game.guesses[r]), 0); }
+
+function shareText() {
+  const lines = game.rounds.map((ci, r) => roundEmoji(CATS[ci], game.guesses[r]) + "  " + roundScore(CATS[ci], game.guesses[r]));
+  return `Imperial Trace #${dayNumber()} · ${dailyTotal()} pts\n${lines.join("\n")}`;
+}
+let cdTimer;
+function renderSummary() {
+  const stats = store.get("it-stats") || { streak: 1, best: 1, played: 1, top: dailyTotal() };
+  const gems = game.rounds.filter((ci, r) => game.guesses[r].some(g => g.idx === CATS[ci].rarest)).length;
+  main.innerHTML = `<section class="card summary" aria-labelledby="sum-h">
+    <div class="eyebrow"><span>Daily #${dayNumber()} · complete</span><span>${gems} of 3 rarest found</span></div>
+    <div class="big" id="sum-h">${dailyTotal()}<span>points today</span></div>
+    <div class="rounds">${game.rounds.map((ci, r) => `<div class="rline"><span class="rp">${esc(CATS[ci].prompt)}</span><span class="em" aria-hidden="true">${roundEmoji(CATS[ci], game.guesses[r])}</span><span class="rs">${roundScore(CATS[ci], game.guesses[r])}</span></div>`).join("")}</div>
+    <div class="stats">
+      <div class="stat"><b>${stats.streak}</b><span>Day streak</span></div>
+      <div class="stat"><b>${stats.best}</b><span>Best streak</span></div>
+      <div class="stat"><b>${stats.top || dailyTotal()}</b><span>Best score</span></div>
+    </div>
+    <label for="share-text" class="eyebrow"><span>Share your result</span></label>
+    <textarea class="share" id="share-text" readonly>${esc(shareText())}</textarea>
+    <div class="scoreline">
+      <div class="countdown" id="countdown"></div>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="review">Review answers</button>
+        <button type="button" class="btn" id="copy">Copy result</button>
+        <button type="button" class="btn accent" id="to-unl">Play Unlimited</button>
+      </div>
+    </div>
+  </section><div id="review-box"></div>`;
+  document.getElementById("copy").addEventListener("click", e => {
+    const btn = e.currentTarget, ta = document.getElementById("share-text");
+    const ok = () => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy result", 1600); };
+    const fallback = () => { ta.focus(); ta.select(); btn.textContent = "Selected, press Copy"; };
+    try { navigator.clipboard.writeText(ta.value).then(ok, fallback); } catch { fallback(); }
+  });
+  document.getElementById("to-unl").addEventListener("click", () => setMode("unlimited"));
+  document.getElementById("review").addEventListener("click", e => {
+    e.currentTarget.disabled = true;
+    document.getElementById("review-box").innerHTML = game.rounds.map((ci, r) => `<div style="margin-top:20px">${revealHTML(CATS[ci], game.guesses[r]).replace('id="reveal-h">Every accepted answer', `id="reveal-h-${r}">${esc(CATS[ci].prompt)}`).replace('aria-labelledby="reveal-h"', `aria-labelledby="reveal-h-${r}"`)}</div>`).join("");
+  });
+  clearInterval(cdTimer);
+  const tick = () => {
+    const el = document.getElementById("countdown"); if (!el) return clearInterval(cdTimer);
+    const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0);
+    if (dateKey(n) !== game.date) { clearInterval(cdTimer); game = newDaily(); render(); return; }
+    const s = Math.floor((m - n) / 1000);
+    el.textContent = `Next daily in ${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  tick(); cdTimer = setInterval(tick, 1000);
+}
+
+/* ---------- Hot Flask (party mode) ---------- */
+const FUSE_MIN = 10000, FUSE_MAX = 30000, FUSE_FLOOR = 8000;
+let party = null, partyTimer = null, partyLives = 3;
+let partyNames = (() => { const n = store.get("it-party-names"); return Array.isArray(n) && n.length >= 2 ? n.slice(0, 8) : ["Player 1", "Player 2", "Player 3"]; })();
+const FLASK = `<svg viewBox="0 0 80 100"><defs><clipPath id="fclip"><path d="M31 14h18v26l21 42a8 8 0 0 1-7 12H17a8 8 0 0 1-7-12l21-42z"/></clipPath></defs>
+  <path class="steam" d="M36 10c-3-3 3-5 0-9"/><path class="steam s2" d="M45 10c-3-3 3-5 0-9"/>
+  <g clip-path="url(#fclip)"><rect class="liq" x="0" y="56" width="80" height="44"/>
+  <circle class="bub" cx="30" cy="88" r="3"/><circle class="bub b2" cx="45" cy="90" r="2.5"/><circle class="bub b3" cx="54" cy="84" r="2"/><circle class="bub b4" cx="38" cy="80" r="1.8"/></g>
+  <path class="glass" d="M31 14h18v26l21 42a8 8 0 0 1-7 12H17a8 8 0 0 1-7-12l21-42z"/><rect class="lip" x="27" y="10" width="26" height="6" rx="2"/></svg>`;
+
+function stopParty() { clearInterval(partyTimer); partyTimer = null; if (party) party.running = false; }
+function nextAlive(i) { const n = party.players.length; let j = i; do { j = (j + 1) % n; } while (party.players[j].lives <= 0 && j !== i); return j; }
+function partyChips() {
+  return `<div class="pchips">${party.players.map((pl, i) => `<span class="pchip${i === party.holder && pl.lives > 0 ? " on" : ""}${pl.lives <= 0 ? " out" : ""}">${esc(pl.name)}<span class="lv" aria-label="${pl.lives} lives">${"●".repeat(Math.max(0, pl.lives))}${"○".repeat(Math.max(0, party.maxLives - pl.lives))}</span></span>`).join("")}</div>`;
+}
+function nextPrompt() {
+  if (!party.deck.length) { party.deck = CATS.map((_, i) => i).filter(i => i !== party.cat).sort(() => Math.random() - 0.5); }
+  party.cat = party.deck.pop(); party.used = new Set(); party.prompts++;
+}
+function renderPartySetup() {
+  main.innerHTML = `<section class="card" aria-labelledby="ps-h">
+    <div class="eyebrow"><span>Hot Flask · party mode</span><span>One device, 2–8 players</span></div>
+    <h2 class="prompt" id="ps-h">Pass the flask before it boils over</h2>
+    <p class="sub">Take turns naming an answer nobody has said yet. A good answer passes the flask on. It boils over at a hidden moment 10–30 seconds after it's lit, and whoever is holding it loses a life. The last player with a life left wins.</p>
+    <div class="plist">${partyNames.map((n, i) => `<div class="prow"><label for="pn-${i}" class="pnum">${i + 1}</label><input id="pn-${i}" type="text" maxlength="16" value="${esc(n)}" autocomplete="off"><button type="button" class="icon-btn" data-rm="${i}" aria-label="Remove player ${i + 1}" ${partyNames.length <= 2 ? "disabled" : ""}>×</button></div>`).join("")}</div>
+    <div class="scoreline">
+      <button type="button" class="btn ghost" id="padd" ${partyNames.length >= 8 ? "disabled" : ""}>Add player</button>
+      <div class="seg" role="group" aria-label="Lives each">${[2, 3, 4].map(l => `<button type="button" data-lives="${l}" aria-pressed="${l === partyLives}">${l} lives</button>`).join("")}</div>
+    </div>
+    <button type="button" class="btn accent" id="pstart">Start the party</button>
+  </section>`;
+  const sync = () => { partyNames = partyNames.map((_, i) => document.getElementById("pn-" + i).value); };
+  document.getElementById("padd").addEventListener("click", () => { sync(); partyNames.push("Player " + (partyNames.length + 1)); renderPartySetup(); document.getElementById("pn-" + (partyNames.length - 1)).select(); });
+  main.querySelectorAll("[data-rm]").forEach(b => b.addEventListener("click", () => { sync(); partyNames.splice(+b.dataset.rm, 1); renderPartySetup(); }));
+  main.querySelectorAll("[data-lives]").forEach(b => b.addEventListener("click", () => { sync(); partyLives = +b.dataset.lives; renderPartySetup(); }));
+  document.getElementById("pstart").addEventListener("click", () => {
+    sync();
+    partyNames = partyNames.map((n, i) => n.trim().slice(0, 16) || "Player " + (i + 1));
+    store.set("it-party-names", partyNames);
+    startParty();
+  });
+}
+function startParty() {
+  party = { players: partyNames.map(name => ({ name, lives: partyLives })), maxLives: partyLives, holder: Math.floor(Math.random() * partyNames.length), cat: -1, used: new Set(), deck: [], prompts: 0, fuseEnd: 0, running: false, said: 0, best: null };
+  nextPrompt();
+  renderPartyReady(`${esc(party.players[party.holder].name)} goes first.`);
+}
+function renderPartyReady(note, burst) {
+  const cat = CATS[party.cat];
+  main.innerHTML = `<section class="card" aria-labelledby="pr-h">
+    <div class="eyebrow"><span>Hot Flask · Prompt <b>${party.prompts}</b></span><span>${cat.answers.length} accepted answers</span></div>
+    ${burst ? `<p class="boom" id="pr-h">${burst}</p>` : `<h2 class="prompt" id="pr-h">${esc(party.players[party.holder].name)}, you're holding the flask</h2>`}
+    <p class="sub" style="margin:0">${note}</p>
+    <div class="holder"><div class="flask idle${burst ? " burst" : ""}" aria-hidden="true">${FLASK}</div><div><p class="lbl">Next prompt</p><p class="hname" style="font-size:clamp(20px,5vw,26px);line-height:1.15">${esc(cat.prompt)}</p></div></div>
+    ${partyChips()}
+    <button type="button" class="btn accent" id="plight">Light the burner · ${esc(party.players[party.holder].name)} starts</button>
+  </section>`;
+  document.getElementById("plight").addEventListener("click", startFuse);
+}
+function startFuse() {
+  party.fuseEnd = Date.now() + FUSE_MIN + Math.random() * (FUSE_MAX - FUSE_MIN);
+  party.running = true;
+  clearInterval(partyTimer);
+  partyTimer = setInterval(() => { if (party && party.running && Date.now() >= party.fuseEnd) partyPop(); }, 100);
+  renderPartyPlay();
+}
+function renderPartyPlay(fb = "", cls = "") {
+  const cat = CATS[party.cat], h = party.players[party.holder];
+  const used = [...party.used];
+  main.innerHTML = `<section class="card" aria-labelledby="pp-h">
+    <div class="eyebrow"><span>Hot Flask · Prompt <b>${party.prompts}</b></span><span>${cat.answers.length - party.used.size} answers left</span></div>
+    <h2 class="prompt" id="pp-h">${esc(cat.prompt)}</h2>
+    <div class="holder"><div class="flask" aria-hidden="true">${FLASK}</div><div><p class="lbl">Holding the flask</p><p class="hname">${esc(h.name)}</p></div></div>
+    <form class="guess" id="pform" autocomplete="off">
+      <input id="party-input" type="text" maxlength="80" placeholder="Name one, fast…" aria-label="Answer for ${esc(h.name)}" autocapitalize="off" spellcheck="false">
+      <button class="btn" type="submit">Pass</button>
+    </form>
+    <div class="feedback ${cls}" id="pfb" aria-live="polite">${fb || "Say something nobody has said yet."}</div>
+    ${partyChips()}
+    ${used.length ? `<div class="uchips" aria-label="Already said">${used.map(i => `<span class="uchip t${tierOf(cat, i)}">${esc(cat.answers[i].name)}</span>`).join("")}</div>` : ""}
+  </section>`;
+  const inp = document.getElementById("party-input");
+  document.getElementById("pform").addEventListener("submit", e => { e.preventDefault(); partyGuess(inp.value); });
+  inp.focus({ preventScroll: true });
+}
+function partyGuess(raw) {
+  const text = raw.trim();
+  if (!party || !party.running || !text) return;
+  const cat = CATS[party.cat], fb = document.getElementById("pfb"), inp = document.getElementById("party-input");
+  const reject = msg => { fb.className = "feedback"; fb.textContent = msg; inp.classList.remove("nudge"); void inp.offsetWidth; inp.classList.add("nudge"); inp.select(); };
+  const m = match(cat, text);
+  if (!m) return reject(`“${text}” isn't on the list. Keep going!`);
+  if (party.used.has(m.idx)) return reject(`${cat.answers[m.idx].name} has already been said.`);
+  party.used.add(m.idx); party.said++;
+  const a = cat.answers[m.idx], t = tierOf(cat, m.idx), pl = party.players[party.holder];
+  if (!party.best || a.pct < party.best.pct) party.best = { name: a.name, pct: a.pct, by: pl.name };
+  let msg = `${esc(pl.name)} said ${esc(a.name)} · ${TIER_NAME[t]}, ${fmtPct(a.pct)}.`;
+  if (t === 5) { if (pl.lives < party.maxLives) { pl.lives++; msg += " Rarest answer, +1 life!"; } else msg += " Rarest answer!"; }
+  const now = Date.now();
+  if (party.fuseEnd - now < FUSE_FLOOR) party.fuseEnd = now + FUSE_FLOOR;
+  party.holder = nextAlive(party.holder);
+  if (party.used.size >= cat.answers.length) { nextPrompt(); msg += " Every answer used, here's a new prompt."; }
+  renderPartyPlay(msg, t === 5 ? "gem" : "hit");
+}
+function partyPop() {
+  stopParty();
+  const cat = CATS[party.cat], loser = party.players[party.holder];
+  loser.lives--;
+  const missed = cat.answers.map((a, i) => ({ a, i })).filter(x => !party.used.has(x.i)).sort((x, y) => x.a.pct - y.a.pct).slice(0, 3).map(x => esc(x.a.name));
+  const alive = party.players.filter(p => p.lives > 0);
+  const missNote = missed.length ? `Still unsaid: ${missed.join(", ")}.` : "";
+  if (alive.length <= 1) return renderPartyWin(alive[0], loser, missNote);
+  if (loser.lives <= 0) party.holder = nextAlive(party.holder);
+  nextPrompt();
+  renderPartyReady(`${missNote} Pass the device to ${esc(party.players[party.holder].name)}.`, loser.lives > 0 ? `Boiled over! ${esc(loser.name)} loses a life.` : `Boiled over! ${esc(loser.name)} is out.`);
+}
+function renderPartyWin(winner, loser, missNote) {
+  main.innerHTML = `<section class="card" aria-labelledby="pw-h">
+    <div class="eyebrow"><span>Hot Flask · game over</span><span>${party.prompts} prompts · ${party.said} answers said</span></div>
+    <p class="boom">Boiled over on ${esc(loser.name)}.</p>
+    <div class="big" id="pw-h">${esc(winner ? winner.name : "Nobody")}<span>wins</span></div>
+    <p class="sub" style="margin:0">${missNote}${party.best ? ` Rarest answer of the game: ${esc(party.best.name)} (${fmtPct(party.best.pct)}), said by ${esc(party.best.by)}.` : ""}</p>
+    ${partyChips()}
+    <div class="actions">
+      <button type="button" class="btn accent" id="prematch">Rematch</button>
+      <button type="button" class="btn ghost" id="psetup">Change players</button>
+    </div>
+  </section>`;
+  document.getElementById("prematch").addEventListener("click", startParty);
+  document.getElementById("psetup").addEventListener("click", renderPartySetup);
+}
+
+/* ---------- Mode + help ---------- */
+function setMode(m) {
+  mode = m;
+  ["daily", "unlimited", "party"].forEach(k => document.getElementById("mode-" + k).setAttribute("aria-pressed", m === k));
+  clearInterval(cdTimer);
+  stopParty();
+  if (m === "party") { renderPartySetup(); return; }
+  game = m === "daily" ? newDaily() : newUnlimitedRound();
+  render();
+}
+document.getElementById("mode-daily").addEventListener("click", () => setMode("daily"));
+document.getElementById("mode-unlimited").addEventListener("click", () => setMode("unlimited"));
+document.getElementById("mode-party").addEventListener("click", () => setMode("party"));
+const help = document.getElementById("help");
+function openHelp() { help.hidden = false; document.getElementById("help-close").focus(); }
+function closeHelp() { help.hidden = true; store.set("it-seen-help", true); const i = document.getElementById("guess-input"); if (i && !i.disabled) i.focus(); }
+document.getElementById("help-btn").addEventListener("click", openHelp);
+document.getElementById("help-close").addEventListener("click", closeHelp);
+help.addEventListener("click", e => { if (e.target === help) closeHelp(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !help.hidden) closeHelp(); });
+
+setMode("daily");
+if (!store.get("it-seen-help")) openHelp();
+</script>
+
+</body>
+</html>
